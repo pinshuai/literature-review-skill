@@ -4,11 +4,11 @@ Citation Verification Script
 Verifies DOIs, URLs, and citation metadata for accuracy.
 """
 
+import os
 import re
 import requests
 import json
 from typing import Dict, List, Tuple
-from urllib.parse import urlparse
 import time
 
 class CitationVerifier:
@@ -20,7 +20,7 @@ class CitationVerifier:
 
     def extract_dois(self, text: str) -> List[str]:
         """Extract all DOIs from text."""
-        doi_pattern = r'10\.\d{4,}/[^\s\]\)"]+'
+        doi_pattern = r'10\.\d{4,}/[^\s\]\)"}]+'
         return re.findall(doi_pattern, text)
 
     def verify_doi(self, doi: str) -> Tuple[bool, Dict]:
@@ -102,7 +102,7 @@ class CitationVerifier:
             response = self.session.head(url, timeout=10, allow_redirects=True)
             is_accessible = response.status_code < 400
             return is_accessible, response.status_code
-        except Exception as e:
+        except Exception:
             return False, 0
 
     def verify_citations_in_file(self, filepath: str) -> Dict:
@@ -212,7 +212,7 @@ def main():
             print(f"\n{citation}")
 
     # Save detailed report
-    output_file = filepath.replace('.md', '_citation_report.json')
+    output_file = os.path.splitext(filepath)[0] + '_citation_report.json'
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
 

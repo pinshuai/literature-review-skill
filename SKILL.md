@@ -266,6 +266,30 @@ Literature reviews follow a structured, multi-phase workflow:
    - Use verification script output to format citations correctly
    - Ensure in-text citations match reference list format
 
+4. **Use pandoc citation keys so citations hyperlink to the reference list (REQUIRED for linked PDFs)**:
+
+   Hand-typed author-year strings like `(Smith et al., 2023)` plus a hand-numbered
+   reference list produce **no clickable links** in the PDF — pandoc has no way to
+   connect the prose to the reference entries. To get in-text citations that link to
+   their reference entry (and reference entries that link to their DOI), author the
+   review with pandoc's citation syntax and let `citeproc` build the reference list:
+
+   - **In-text citations** use `[@key]` (parenthetical) or `@key` (narrative), e.g.
+     `[@smith2023]` → "(Smith et al., 2023)", `@smith2023` → "Smith et al. (2023)".
+     Multiple: `[@smith2023; @jones2024]`. Page/prefix: `[see @smith2023, p. 5]`.
+   - **A bibliography database** (`my_literature_review.bib`) sits next to the markdown
+     and holds one BibTeX entry per source, keyed by the same `key`. Build it from the
+     verified metadata — `scripts/search_databases.py --format bibtex` emits BibTeX, and
+     `scripts/verify_citations.py` confirms every DOI first. One stable convention for
+     keys is first-author-surname + year (+ `a`/`b` to disambiguate), e.g. `smith2023`.
+   - **The reference section** is auto-generated: end the document with a `# References`
+     heading (citeproc appends the formatted, linked list after it). Do **not** also
+     hand-write a numbered list — citeproc replaces it.
+   - `scripts/generate_pdf.py` auto-detects `my_literature_review.bib` and enables
+     `--citeproc` with `link-citations`/`link-bibliography`, so every `[@key]` becomes an
+     internal hyperlink. (Without a `.bib`, it falls back to rendering the markdown as-is,
+     and citations will not link.)
+
 ### Phase 7: Document Generation
 
 1. **Generate PDF**:
@@ -284,9 +308,13 @@ Literature reviews follow a structured, multi-phase workflow:
 2. **Review Final Output**:
    - Check PDF formatting and layout
    - Verify all sections are present
-   - Ensure citations render correctly
+   - Ensure citations render correctly **and click through to the reference list**
+     (requires the `.bib` + `[@key]` convention from Phase 6, step 4)
    - Check that figures/tables appear properly
    - Verify table of contents is accurate
+
+   Note: if the review's headings are manually numbered (e.g. `## 7. References`), pass
+   `--no-numbers` so pandoc doesn't add a second layer of section numbers.
 
 3. **Quality Checklist**:
    - [ ] At least 30-50 unique, retained papers included (or the shortfall is explicitly justified in Methodology)
@@ -299,6 +327,7 @@ Literature reviews follow a structured, multi-phase workflow:
    - [ ] Quality assessment completed
    - [ ] Limitations acknowledged
    - [ ] References complete and accurate
+   - [ ] In-text citations hyperlink to the reference list in the PDF (`.bib` + `[@key]` convention)
    - [ ] PDF generates without errors
 
 ## Database-Specific Search Guidance

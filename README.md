@@ -167,7 +167,10 @@ this skill:
   round (234 candidates screened, 0 duplicates between rounds).
 - **48/48 DOIs verified**, 0 failed (`wildfire_baseflow_review_citation_report.json`).
 - Full search documentation for both rounds (`sources/search_log.md`).
-- A rendered 14-page PDF (`wildfire_baseflow_review.pdf`).
+- A rendered 18-page PDF (`wildfire_baseflow_review.pdf`) in which **every in-text citation is a
+  clickable link to its reference entry, and every reference links to its DOI** — produced with the
+  pandoc `[@key]` + `.bib` + APA-CSL convention described under [Phase 6](SKILL.md) and in
+  [`references/citation_styles.md`](references/citation_styles.md#pandoc-citations-for-linked-pdfs).
 
 Use it as a reference for what each workflow phase's output should actually look like.
 

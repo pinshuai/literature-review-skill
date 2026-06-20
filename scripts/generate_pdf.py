@@ -71,14 +71,32 @@ def generate_pdf(
     if number_sections:
         cmd.append('--number-sections')
 
-    # Add citation processing if bibliography exists
+    # Add citation processing if a bibliography exists.
+    # When a .bib sits next to the markdown, pandoc's citeproc filter turns
+    # [@key] in-text citations into a generated, hyperlinked reference list.
+    # link-citations/link-bibliography are what make the in-text citations
+    # clickable internal links to their reference entries (and the reference
+    # entries clickable links to their DOI/URL). Without these, citeproc still
+    # builds the list but produces no cross-links.
     bib_file = Path(markdown_file).with_suffix('.bib')
     if bib_file.exists():
         cmd.extend([
             '--citeproc',
             '--bibliography', str(bib_file),
-            '--csl', f'{citation_style}.csl' if not citation_style.endswith('.csl') else citation_style
+            '-M', 'link-citations=true',
+            '-M', 'link-bibliography=true',
         ])
+        # Only pass --csl when the style file actually exists; otherwise let
+        # pandoc fall back to its built-in author-date style. Passing a missing
+        # CSL path makes pandoc abort. Look for "<style>.csl" both in the current
+        # directory and next to the markdown file (e.g. apa.csl alongside the review).
+        csl_name = citation_style if citation_style.endswith('.csl') else f'{citation_style}.csl'
+        csl_candidates = [csl_name, str(Path(markdown_file).parent / csl_name)]
+        csl_path = next((c for c in csl_candidates if os.path.exists(c)), None)
+        if csl_path:
+            cmd.extend(['--csl', csl_path])
+        else:
+            print(f"Note: CSL style '{csl_name}' not found; using pandoc's default author-date style.")
 
     # Add custom template if provided
     if template and os.path.exists(template):
@@ -92,7 +110,7 @@ def generate_pdf(
         print(f"✓ PDF generated successfully: {output_pdf}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error generating PDF:")
+        print("Error generating PDF:")
         print(f"STDOUT: {e.stdout}")
         print(f"STDERR: {e.stderr}")
         return False

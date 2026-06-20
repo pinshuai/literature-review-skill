@@ -164,3 +164,54 @@ Maintain consistent formatting throughout:
 - Journal name abbreviations
 - DOI presentation
 - Author name format
+
+## Pandoc Citations (for linked PDFs)
+
+The formats above describe how a finished citation should *look*. To make in-text
+citations **hyperlink to the reference list** in the generated PDF, author the review
+with pandoc's citation syntax rather than typing the author-year strings by hand.
+
+### In-text syntax
+| You write | Renders as |
+|---|---|
+| `[@smith2023]` | (Smith et al., 2023) |
+| `@smith2023` | Smith et al. (2023) |
+| `[@smith2023; @jones2024]` | (Smith et al., 2023; Jones, 2024) |
+| `[see @smith2023, p. 5]` | (see Smith et al., 2023, p. 5) |
+| `[-@smith2023]` | (2023) — suppress author |
+
+### Bibliography database
+Each `@key` must resolve to a BibTeX entry in a `.bib` file named to match the review
+(e.g. `my_review.md` → `my_review.bib`). A minimal entry:
+
+```bibtex
+@article{smith2023,
+  title   = {A study of post-fire baseflow},
+  author  = {Smith, Jane D. and Jones, Maria L.},
+  journal = {Water Resources Research},
+  year    = {2023},
+  volume  = {59},
+  pages   = {1465--1478},
+  doi     = {10.1002/2014wr016553}
+}
+```
+
+- Build the `.bib` from verified metadata: `scripts/search_databases.py --format bibtex`
+  emits BibTeX; verify every DOI first with `scripts/verify_citations.py`.
+- Use full author lists in the `author` field (`First, Last and First, Last`). Do **not**
+  put the literal string `et al.` in the field — the CSL style adds "et al." truncation
+  itself based on the chosen style.
+- Key convention: first-author surname + year, with `a`/`b` suffixes to disambiguate
+  same-author/same-year entries (`smith2023a`, `smith2023b`).
+
+### Reference list
+End the document with a `# References` heading and **no** manual list. `citeproc`
+generates the formatted, alphabetized (or numbered) list there automatically.
+
+### Styling
+Pandoc's built-in default is Chicago author-date. To match APA/Nature/Vancouver/IEEE
+exactly, supply the matching CSL file and point `generate_pdf.py --citation-style` at it
+(e.g. `--citation-style apa` looks for `apa.csl`). Download CSL files from the
+[Citation Style Language repository](https://github.com/citation-style-language/styles).
+`generate_pdf.py` sets `link-citations`/`link-bibliography`, so the rendered citations
+become clickable internal links regardless of the chosen style.
