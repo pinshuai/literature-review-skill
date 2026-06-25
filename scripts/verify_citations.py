@@ -19,9 +19,22 @@ class CitationVerifier:
         })
 
     def extract_dois(self, text: str) -> List[str]:
-        """Extract all DOIs from text."""
-        doi_pattern = r'10\.\d{4,}/[^\s\]\)"}]+'
-        return re.findall(doi_pattern, text)
+        """Extract all DOIs from text.
+
+        Some legitimate DOIs (e.g. pre-2000 Elsevier suffixes like
+        10.1016/0022-1694(93)90119-t) embed a balanced pair of parentheses,
+        so '(' and ')' can't simply be excluded from the match. Instead,
+        capture them and strip only a trailing ')' that has no matching '('
+        within the DOI (i.e. punctuation from the surrounding text).
+        """
+        doi_pattern = r'10\.\d{4,}/[^\s\]"}]+'
+        dois = re.findall(doi_pattern, text)
+        cleaned = []
+        for doi in dois:
+            while doi.endswith(')') and doi.count('(') < doi.count(')'):
+                doi = doi[:-1]
+            cleaned.append(doi.rstrip('.,;:'))
+        return cleaned
 
     def verify_doi(self, doi: str) -> Tuple[bool, Dict]:
         """

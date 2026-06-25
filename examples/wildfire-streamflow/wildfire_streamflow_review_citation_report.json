@@ -1,0 +1,558 @@
+{
+  "total_dois": 55,
+  "verified": [
+    "10.1016/0022-1694(93)90119-t",
+    "10.1016/0022-1694(90)90234-o",
+    "10.1016/0022-1694(87)90054-0",
+    "10.1002/wrcr.20351",
+    "10.1016/j.jhydrol.2015.02.045",
+    "10.1016/j.jhydrol.2022.127728",
+    "10.1002/hyp.14439",
+    "10.1016/j.jhydrol.2014.09.033",
+    "10.5194/hess-22-1221-2018",
+    "10.5194/hess-22-2527-2018",
+    "10.1038/s41467-018-03735-6",
+    "10.1088/1748-9326/aa9c5a",
+    "10.1029/2018ef000930",
+    "10.1073/pnas.2114069119",
+    "10.1029/2021WR030687",
+    "10.1002/2014wr016553",
+    "10.1029/2020wr028029",
+    "10.1002/hyp.14949",
+    "10.3390/hydrology9090157",
+    "10.1029/2022wr034206",
+    "10.1038/s43247-025-02419-6",
+    "10.1088/1748-9326/ae114d",
+    "10.1016/j.jhydrol.2022.128242",
+    "10.1016/j.jhydrol.2021.127162",
+    "10.1016/j.jhydrol.2020.125364",
+    "10.1111/gcb.16995",
+    "10.1016/j.jhydrol.2018.02.023",
+    "10.1002/eco.2697",
+    "10.1016/j.jhydrol.2023.129585",
+    "10.1016/j.jhydrol.2025.134538",
+    "10.2166/nh.2010.036",
+    "10.1016/j.jhydrol.2019.124244",
+    "10.3390/rs17223690",
+    "10.1016/j.jhydrol.2024.131612",
+    "10.5194/hess-16-267-2012",
+    "10.1111/jfr3.70054",
+    "10.1007/s11269-025-04207-5",
+    "10.1002/2015wr018176",
+    "10.1002/esp.4194",
+    "10.1126/sciadv.adk5713",
+    "10.1126/sciadv.adt9866",
+    "10.3389/frwa.2022.971271",
+    "10.1029/2021wr031569",
+    "10.1002/hyp.70377",
+    "10.1002/hyp.15278",
+    "10.1002/hyp.70151",
+    "10.1073/pnas.2200333119",
+    "10.1038/s41467-019-09935-y",
+    "10.1093/jofore/fvz069",
+    "10.1088/3033-4942/ae2a64",
+    "10.1029/2022EF003038",
+    "10.2478/johh-2022-0033",
+    "10.1016/j.jhydrol.2021.126772",
+    "10.1016/j.earscirev.2024.104990",
+    "10.1016/j.earscirev.2026.105452"
+  ],
+  "failed": [],
+  "metadata": {
+    "10.1016/0022-1694(93)90119-t": {
+      "title": "The hydrological effects of fire in South African mountain catchments",
+      "authors": "Scott, D.",
+      "year": "1993",
+      "journal": "Journal of Hydrology",
+      "volume": "150",
+      "pages": "409-432",
+      "doi": "10.1016/0022-1694(93)90119-t"
+    },
+    "10.1016/0022-1694(90)90234-o": {
+      "title": "The effects of wildfire on soil wettability and hydrological behaviour of an afforested catchment",
+      "authors": "Scott, D., Van Wyk, D.",
+      "year": "1990",
+      "journal": "Journal of Hydrology",
+      "volume": "121",
+      "pages": "239-256",
+      "doi": "10.1016/0022-1694(90)90234-o"
+    },
+    "10.1016/0022-1694(87)90054-0": {
+      "title": "Prediction of water yield reductions following a bushfire in ash-mixed species eucalypt forest",
+      "authors": "Kuczera, G.",
+      "year": "1987",
+      "journal": "Journal of Hydrology",
+      "volume": "94",
+      "pages": "215-236",
+      "doi": "10.1016/0022-1694(87)90054-0"
+    },
+    "10.1002/wrcr.20351": {
+      "title": "The impact of bushfires on water yield from south\u2010east Australia's ash forests",
+      "authors": "Brookhouse, M., Farquhar, G., Roderick, M.",
+      "year": "2013",
+      "journal": "Water Resources Research",
+      "volume": "49",
+      "pages": "4493-4505",
+      "doi": "10.1002/wrcr.20351"
+    },
+    "10.1016/j.jhydrol.2015.02.045": {
+      "title": "Trends in evapotranspiration and streamflow following wildfire in resprouting eucalypt forests",
+      "authors": "Nolan, R., Lane, P., Benyon, R., et al.",
+      "year": "2015",
+      "journal": "Journal of Hydrology",
+      "volume": "524",
+      "pages": "614-624",
+      "doi": "10.1016/j.jhydrol.2015.02.045"
+    },
+    "10.1016/j.jhydrol.2022.127728": {
+      "title": "Wildfire contribution to streamflow variability across Australian temperate zone",
+      "authors": "Khaledi, J., Lane, P., Nitschke, C., et al.",
+      "year": "2022",
+      "journal": "Journal of Hydrology",
+      "volume": "609",
+      "pages": "127728",
+      "doi": "10.1016/j.jhydrol.2022.127728"
+    },
+    "10.1002/hyp.14439": {
+      "title": "Estimating impacts of wildfire and climate variability on streamflow in Victoria, Australia",
+      "authors": "Guo, Y., Zhang, L., Zhang, Y., et al.",
+      "year": "2021",
+      "journal": "Hydrological Processes",
+      "volume": "35",
+      "pages": "",
+      "doi": "10.1002/hyp.14439"
+    },
+    "10.1016/j.jhydrol.2014.09.033": {
+      "title": "Post-wildfire recovery of water yield in the Sydney Basin water supply catchments: An assessment of the 2001/2002 wildfires",
+      "authors": "Heath, J., Chafer, C., van Ogtrop, F., et al.",
+      "year": "2014",
+      "journal": "Journal of Hydrology",
+      "volume": "519",
+      "pages": "1428-1440",
+      "doi": "10.1016/j.jhydrol.2014.09.033"
+    },
+    "10.5194/hess-22-1221-2018": {
+      "title": "Characterization and evaluation of controls on post-fire streamflow response across western US watersheds",
+      "authors": "Saxe, S., Hogue, T., Hay, L.",
+      "year": "2018",
+      "journal": "Hydrology and Earth System Sciences",
+      "volume": "22",
+      "pages": "1221-1237",
+      "doi": "10.5194/hess-22-1221-2018"
+    },
+    "10.5194/hess-22-2527-2018": {
+      "title": "Assessing the hydrologic response to wildfires  in mountainous regions",
+      "authors": "Havel, A., Tasdighi, A., Arabi, M.",
+      "year": "2018",
+      "journal": "Hydrology and Earth System Sciences",
+      "volume": "22",
+      "pages": "2527-2550",
+      "doi": "10.5194/hess-22-2527-2018"
+    },
+    "10.1038/s41467-018-03735-6": {
+      "title": "Burned forests impact water supplies",
+      "authors": "Hallema, D., Sun, G., Caldwell, P., et al.",
+      "year": "2018",
+      "journal": "Nature Communications",
+      "volume": "9",
+      "pages": "",
+      "doi": "10.1038/s41467-018-03735-6"
+    },
+    "10.1088/1748-9326/aa9c5a": {
+      "title": "In ecoregions across western USA streamflow increases during post-wildfire recovery",
+      "authors": "Wine, M., Cadol, D., Makhnin, O.",
+      "year": "2018",
+      "journal": "Environmental Research Letters",
+      "volume": "13",
+      "pages": "014010",
+      "doi": "10.1088/1748-9326/aa9c5a"
+    },
+    "10.1029/2018ef000930": {
+      "title": "Nonlinear Long\u2010Term Large Watershed Hydrologic Response to Wildfire and Climatic Dynamics Locally Increases Water Yields",
+      "authors": "Wine, M., Makhnin, O., Cadol, D.",
+      "year": "2018",
+      "journal": "Earth's Future",
+      "volume": "6",
+      "pages": "997-1006",
+      "doi": "10.1029/2018ef000930"
+    },
+    "10.1073/pnas.2114069119": {
+      "title": "Growing impact of wildfire on western US water supply",
+      "authors": "Williams, A., Livneh, B., McKinnon, K., et al.",
+      "year": "2022",
+      "journal": "Proceedings of the National Academy of Sciences",
+      "volume": "119",
+      "pages": "",
+      "doi": "10.1073/pnas.2114069119"
+    },
+    "10.1029/2021WR030687": {
+      "title": "Streamflow Response to Wildfire Differs With Season and Elevation in Adjacent Headwaters of the Lower Colorado River Basin",
+      "authors": "Biederman, J., Robles, M., Scott, R., et al.",
+      "year": "2022",
+      "journal": "Water Resources Research",
+      "volume": "58",
+      "pages": "",
+      "doi": "10.1029/2021WR030687"
+    },
+    "10.1002/2014wr016553": {
+      "title": "A regional estimate of postfire streamflow change in California",
+      "authors": "Bart, R.",
+      "year": "2016",
+      "journal": "Water Resources Research",
+      "volume": "52",
+      "pages": "1465-1478",
+      "doi": "10.1002/2014wr016553"
+    },
+    "10.1029/2020wr028029": {
+      "title": "Parsing Weather Variability and Wildfire Effects on the Post\u2010Fire Changes in Daily Stream Flows: A Quantile\u2010Based Statistical Approach and Its Application",
+      "authors": "Beyene, M., Leibowitz, S., Pennino, M.",
+      "year": "2021",
+      "journal": "Water Resources Research",
+      "volume": "57",
+      "pages": "",
+      "doi": "10.1029/2020wr028029"
+    },
+    "10.1002/hyp.14949": {
+      "title": "Spatial analysis of streamflow trends in burned watersheds across the western contiguous United States",
+      "authors": "Long, W., Chang, H.",
+      "year": "2023",
+      "journal": "Hydrological Processes",
+      "volume": "37",
+      "pages": "",
+      "doi": "10.1002/hyp.14949"
+    },
+    "10.3390/hydrology9090157": {
+      "title": "Event Scale Analysis of Streamflow Response to Wildfire in Oregon, 2020",
+      "authors": "Long, W., Chang, H.",
+      "year": "2022",
+      "journal": "Hydrology",
+      "volume": "9",
+      "pages": "157",
+      "doi": "10.3390/hydrology9090157"
+    },
+    "10.1029/2022wr034206": {
+      "title": "Prolonged Drought in a Northern California Coastal Region Suppresses Wildfire Impacts on Hydrology",
+      "authors": "Newcomer, M., Underwood, J., Murphy, S., et al.",
+      "year": "2023",
+      "journal": "Water Resources Research",
+      "volume": "59",
+      "pages": "",
+      "doi": "10.1029/2022wr034206"
+    },
+    "10.1038/s43247-025-02419-6": {
+      "title": "Diverse wildfire impacts on river flows across the globe",
+      "authors": "Grillakis, M., Voulgarakis, A.",
+      "year": "2025",
+      "journal": "Communications Earth &amp; Environment",
+      "volume": "6",
+      "pages": "",
+      "doi": "10.1038/s43247-025-02419-6"
+    },
+    "10.1088/1748-9326/ae114d": {
+      "title": "Universal hydrological trends post-wildfire are obscured by local watershed variability",
+      "authors": "Brown, B., Crandall, C., Betterle, A., et al.",
+      "year": "2025",
+      "journal": "Environmental Research Letters",
+      "volume": "20",
+      "pages": "114070",
+      "doi": "10.1088/1748-9326/ae114d"
+    },
+    "10.1016/j.jhydrol.2022.128242": {
+      "title": "Linking fire-induced evapotranspiration shifts to streamflow magnitude and timing in the western United States",
+      "authors": "Collar, N., Saxe, S., Ebel, B., et al.",
+      "year": "2022",
+      "journal": "Journal of Hydrology",
+      "volume": "612",
+      "pages": "128242",
+      "doi": "10.1016/j.jhydrol.2022.128242"
+    },
+    "10.1016/j.jhydrol.2021.127162": {
+      "title": "A CONUS-scale study of wildfire and evapotranspiration: Spatial and temporal response and controlling factors",
+      "authors": "Collar, N., Saxe, S., Rust, A., et al.",
+      "year": "2021",
+      "journal": "Journal of Hydrology",
+      "volume": "603",
+      "pages": "127162",
+      "doi": "10.1016/j.jhydrol.2021.127162"
+    },
+    "10.1016/j.jhydrol.2020.125364": {
+      "title": "Wildfire controls on evapotranspiration in California\u2019s Sierra Nevada",
+      "authors": "Ma, Q., Bales, R., Rungee, J., et al.",
+      "year": "2020",
+      "journal": "Journal of Hydrology",
+      "volume": "590",
+      "pages": "125364",
+      "doi": "10.1016/j.jhydrol.2020.125364"
+    },
+    "10.1111/gcb.16995": {
+      "title": "Aerodynamic effects cause higher forest evapotranspiration and water yield reductions after wildfires in tall forests",
+      "authors": "Meili, N., Beringer, J., Zhao, J., et al.",
+      "year": "2024",
+      "journal": "Global Change Biology",
+      "volume": "30",
+      "pages": "",
+      "doi": "10.1111/gcb.16995"
+    },
+    "10.1016/j.jhydrol.2018.02.023": {
+      "title": "Spatial and temporal evapotranspiration trends after wildfire in semi-arid landscapes",
+      "authors": "Poon, P., Kinoshita, A.",
+      "year": "2018",
+      "journal": "Journal of Hydrology",
+      "volume": "559",
+      "pages": "71-83",
+      "doi": "10.1016/j.jhydrol.2018.02.023"
+    },
+    "10.1002/eco.2697": {
+      "title": "Estimating changes in streamflow attributable to wildfire in multiple watersheds using a semi\u2010distributed watershed model",
+      "authors": "Wells, R., Mankin, K., Niemann, J., et al.",
+      "year": "2024",
+      "journal": "Ecohydrology",
+      "volume": "17",
+      "pages": "",
+      "doi": "10.1002/eco.2697"
+    },
+    "10.1016/j.jhydrol.2023.129585": {
+      "title": "Modeling wildfire effects on streamflow in the Cascade Mountains, Oregon, USA",
+      "authors": "Wampler, K., Bladon, K., Faramarzi, M.",
+      "year": "2023",
+      "journal": "Journal of Hydrology",
+      "volume": "621",
+      "pages": "129585",
+      "doi": "10.1016/j.jhydrol.2023.129585"
+    },
+    "10.1016/j.jhydrol.2025.134538": {
+      "title": "Evaluating post-fire watershed response to varying burn severity and precipitation regimes using fully-distributed and integrated hydrologic models",
+      "authors": "Li, Z., Li, B., Jiang, P., et al.",
+      "year": "2026",
+      "journal": "Journal of Hydrology",
+      "volume": "664",
+      "pages": "134538",
+      "doi": "10.1016/j.jhydrol.2025.134538"
+    },
+    "10.2166/nh.2010.036": {
+      "title": "Effects of wildfire on catchment runoff response: a modelling approach to detect changes in snow-dominated forested catchments",
+      "authors": "Seibert, J., McDonnell, J., Woodsmith, R.",
+      "year": "2010",
+      "journal": "Hydrology Research",
+      "volume": "41",
+      "pages": "378-390",
+      "doi": "10.2166/nh.2010.036"
+    },
+    "10.1016/j.jhydrol.2019.124244": {
+      "title": "Utility of satellite-derived burn severity to study short- and long-term effects of wildfire on streamflow at the basin scale",
+      "authors": "Moreno, H., Gourley, J., Pham, T., et al.",
+      "year": "2020",
+      "journal": "Journal of Hydrology",
+      "volume": "580",
+      "pages": "124244",
+      "doi": "10.1016/j.jhydrol.2019.124244"
+    },
+    "10.3390/rs17223690": {
+      "title": "Post-Fire Streamflow Prediction: Remote Sensing Insights from Landsat and an Unmanned Aerial Vehicle",
+      "authors": "Acharya, B., Barber, M.",
+      "year": "2025",
+      "journal": "Remote Sensing",
+      "volume": "17",
+      "pages": "3690",
+      "doi": "10.3390/rs17223690"
+    },
+    "10.1016/j.jhydrol.2024.131612": {
+      "title": "Hydrologic responses to wildfires in western Oregon, USA",
+      "authors": "Kang, H., Cole, R., Miralha, L., et al.",
+      "year": "2024",
+      "journal": "Journal of Hydrology",
+      "volume": "639",
+      "pages": "131612",
+      "doi": "10.1016/j.jhydrol.2024.131612"
+    },
+    "10.5194/hess-16-267-2012": {
+      "title": "Hydrological response of a small catchment burned by experimental fire",
+      "authors": "Stoof, C., Vervoort, R., Iwema, J., et al.",
+      "year": "2012",
+      "journal": "Hydrology and Earth System Sciences",
+      "volume": "16",
+      "pages": "267-285",
+      "doi": "10.5194/hess-16-267-2012"
+    },
+    "10.1111/jfr3.70054": {
+      "title": "Wildfire\u2010Induced Enhancement in Downstream Flood Discharge in Watersheds of California",
+      "authors": "Dilshan, W., Hiraga, Y., Kazama, S.",
+      "year": "2025",
+      "journal": "Journal of Flood Risk Management",
+      "volume": "18",
+      "pages": "",
+      "doi": "10.1111/jfr3.70054"
+    },
+    "10.1007/s11269-025-04207-5": {
+      "title": "Survey of Wildfire Effects on the Peak Flow Characteristics",
+      "authors": "Pirani, F., Coulibaly, P.",
+      "year": "2025",
+      "journal": "Water Resources Management",
+      "volume": "39",
+      "pages": "2943-2969",
+      "doi": "10.1007/s11269-025-04207-5"
+    },
+    "10.1002/2015wr018176": {
+      "title": "Model simulations of flood and debris flow timing in steep catchments after wildfire",
+      "authors": "Rengers, F., McGuire, L., Kean, J., et al.",
+      "year": "2016",
+      "journal": "Water Resources Research",
+      "volume": "52",
+      "pages": "6041-6061",
+      "doi": "10.1002/2015wr018176"
+    },
+    "10.1002/esp.4194": {
+      "title": "Reconstructing extreme post\u2010wildfire floods: a comparison of convective and mesoscale events",
+      "authors": "Brogan, D., Nelson, P., MacDonald, L.",
+      "year": "2017",
+      "journal": "Earth Surface Processes and Landforms",
+      "volume": "42",
+      "pages": "2505-2522",
+      "doi": "10.1002/esp.4194"
+    },
+    "10.1126/sciadv.adk5713": {
+      "title": "Upper limits for post-wildfire floods and distinction from debris flows",
+      "authors": "Ebel, B.",
+      "year": "2024",
+      "journal": "Science Advances",
+      "volume": "10",
+      "pages": "",
+      "doi": "10.1126/sciadv.adk5713"
+    },
+    "10.1126/sciadv.adt9866": {
+      "title": "Impact of current and warmer climate conditions on snow cover loss in burned forests",
+      "authors": "Koshkin, A., Marshall, A., Rittger, K.",
+      "year": "2025",
+      "journal": "Science Advances",
+      "volume": "11",
+      "pages": "",
+      "doi": "10.1126/sciadv.adt9866"
+    },
+    "10.3389/frwa.2022.971271": {
+      "title": "Wildfire impacts on western United States snowpacks",
+      "authors": "Koshkin, A., Hatchett, B., Nolin, A.",
+      "year": "2022",
+      "journal": "Frontiers in Water",
+      "volume": "4",
+      "pages": "",
+      "doi": "10.3389/frwa.2022.971271"
+    },
+    "10.1029/2021wr031569": {
+      "title": "Wildfire Impacts on Snowpack Phenology in a Changing Climate Within the Western U.S.",
+      "authors": "Giovando, J., Niemann, J.",
+      "year": "2022",
+      "journal": "Water Resources Research",
+      "volume": "58",
+      "pages": "",
+      "doi": "10.1029/2021wr031569"
+    },
+    "10.1002/hyp.70377": {
+      "title": "Vulnerability of Snowpack to Wildfire and Changing Climate within Western U.S. Ecoregions",
+      "authors": "Giovando, J., Niemann, J.",
+      "year": "2026",
+      "journal": "Hydrological Processes",
+      "volume": "40",
+      "pages": "",
+      "doi": "10.1002/hyp.70377"
+    },
+    "10.1002/hyp.15278": {
+      "title": "Changes in snow\u2010dominated streamflow quantity and timing following an extensive wildfire in British Columbia",
+      "authors": "Spencer, S., Winkler, R.",
+      "year": "2024",
+      "journal": "Hydrological Processes",
+      "volume": "38",
+      "pages": "",
+      "doi": "10.1002/hyp.15278"
+    },
+    "10.1002/hyp.70151": {
+      "title": "Variability in Hydrologic Response to Wildfire Between Snow Zones in Forested Headwaters",
+      "authors": "Miller, Q., Barnard, D., Sears, M., et al.",
+      "year": "2025",
+      "journal": "Hydrological Processes",
+      "volume": "39",
+      "pages": "",
+      "doi": "10.1002/hyp.70151"
+    },
+    "10.1073/pnas.2200333119": {
+      "title": "Increasing wildfire impacts on snowpack in the western U.S.",
+      "authors": "Kampf, S., McGrath, D., Sears, M., et al.",
+      "year": "2022",
+      "journal": "Proceedings of the National Academy of Sciences",
+      "volume": "119",
+      "pages": "",
+      "doi": "10.1073/pnas.2200333119"
+    },
+    "10.1038/s41467-019-09935-y": {
+      "title": "Four-fold increase in solar forcing on snow in western U.S. burned forests since 1999",
+      "authors": "Gleason, K., McConnell, J., Arienzo, M., et al.",
+      "year": "2019",
+      "journal": "Nature Communications",
+      "volume": "10",
+      "pages": "",
+      "doi": "10.1038/s41467-019-09935-y"
+    },
+    "10.1093/jofore/fvz069": {
+      "title": "Forests and Water Yield: A Synthesis of Disturbance Effects on Streamflow and Snowpack in Western Coniferous Forests",
+      "authors": "Goeking, S., Tarboton, D.",
+      "year": "2020",
+      "journal": "Journal of Forestry",
+      "volume": "118",
+      "pages": "172-192",
+      "doi": "10.1093/jofore/fvz069"
+    },
+    "10.1088/3033-4942/ae2a64": {
+      "title": "A review and synthesis of post-wildfire shifts in hydrologic processes and streamflow generation mechanisms",
+      "authors": "Ebel, B., Hammond, J., Walvoord, M., et al.",
+      "year": "2025",
+      "journal": "Environmental Research: Water",
+      "volume": "1",
+      "pages": "042001",
+      "doi": "10.1088/3033-4942/ae2a64"
+    },
+    "10.1029/2022EF003038": {
+      "title": "Modeling Post\u2010Wildfire Hydrologic Response: Review and Future Directions for Applications of Physically Based Distributed Simulation",
+      "authors": "Ebel, B., Shephard, Z., Walvoord, M., et al.",
+      "year": "2023",
+      "journal": "Earth's Future",
+      "volume": "11",
+      "pages": "",
+      "doi": "10.1029/2022EF003038"
+    },
+    "10.2478/johh-2022-0033": {
+      "title": "Hydrologic recovery after wildfire: A framework of approaches, metrics, criteria, trajectories, and timescales",
+      "authors": "Ebel, B., Wagenbrenner, J., Kinoshita, A., et al.",
+      "year": "2022",
+      "journal": "Journal of Hydrology and Hydromechanics",
+      "volume": "70",
+      "pages": "388-400",
+      "doi": "10.2478/johh-2022-0033"
+    },
+    "10.1016/j.jhydrol.2021.126772": {
+      "title": "Post-wildfire hydrologic recovery in Mediterranean climates: A systematic review and case study to identify current knowledge and opportunities",
+      "authors": "Wagenbrenner, J., Ebel, B., Bladon, K., et al.",
+      "year": "2021",
+      "journal": "Journal of Hydrology",
+      "volume": "602",
+      "pages": "126772",
+      "doi": "10.1016/j.jhydrol.2021.126772"
+    },
+    "10.1016/j.earscirev.2024.104990": {
+      "title": "Rainfall as a driver of post-wildfire flooding and debris flows: A review and synthesis",
+      "authors": "Collar, N., Moody, J., Ebel, B.",
+      "year": "2025",
+      "journal": "Earth-Science Reviews",
+      "volume": "260",
+      "pages": "104990",
+      "doi": "10.1016/j.earscirev.2024.104990"
+    },
+    "10.1016/j.earscirev.2026.105452": {
+      "title": "Post-wildfire recovery of forest vegetation, soil, and hydrological responses: A review",
+      "authors": "Zacharakis, I., Tsihrintzis, V.",
+      "year": "2026",
+      "journal": "Earth-Science Reviews",
+      "volume": "277",
+      "pages": "105452",
+      "doi": "10.1016/j.earscirev.2026.105452"
+    }
+  }
+}

@@ -4,8 +4,8 @@ A [Claude Code](https://claude.com/claude-code) skill for conducting systematic,
 literature reviews — searching academic databases, screening and synthesizing findings
 thematically, verifying every citation, and generating a professional PDF.
 
-A complete worked example (48 verified sources, full search log, citation report, and rendered
-PDF) is included in [`examples/wildfire-baseflow/`](examples/wildfire-baseflow/).
+A complete worked example (55 verified sources, full search log, citation report, and rendered
+PDF) is included in [`examples/wildfire-streamflow/`](examples/wildfire-streamflow/).
 
 ## What it does
 
@@ -38,7 +38,7 @@ Full details live in [`SKILL.md`](SKILL.md), which is the skill definition Claud
 | `scripts/verify_citations.py` | Extracts DOIs from a review, verifies each against CrossRef, and writes a `*_citation_report.json`. |
 | `scripts/generate_pdf.py` | Converts the finished markdown into a PDF via `pandoc` + `xelatex`. |
 | `scripts/search_databases.py` | Deduplicates, ranks, year-filters, and reformats raw search-result JSON. |
-| `examples/wildfire-baseflow/` | A complete, real review produced with this skill — see its own [README](examples/wildfire-baseflow/README.md). |
+| `examples/wildfire-streamflow/` | A complete, real review produced with this skill — see its own [README](examples/wildfire-streamflow/README.md). |
 
 **Not included**: this package omits the optional AI-schematic-generation scripts
 (`generate_schematic.py` / `generate_schematic_ai.py`) that exist in some versions of this skill.
@@ -50,8 +50,14 @@ diagram is sufficient.
 
 **Python** (for citation verification and search-result post-processing):
 ```bash
+# macOS / Linux
 pip install -r requirements.txt   # just `requests`
+
+# Windows (PowerShell or cmd.exe)
+py -m pip install -r requirements.txt
 ```
+If Python itself isn't installed on Windows: `winget install --id Python.Python.3.12 -e`, or get the
+installer from [python.org](https://www.python.org/downloads/) (check "Add python.exe to PATH").
 
 **Pandoc + XeLaTeX** (for PDF generation):
 ```bash
@@ -59,14 +65,48 @@ pip install -r requirements.txt   # just `requests`
 brew install pandoc
 brew install --cask mactex
 
-# Linux
+# Linux (Debian/Ubuntu)
 apt-get install pandoc texlive-xetex
-```
 
-Check everything is installed:
+# Windows (winget — preferred)
+winget install --id JohnMacFarlane.Pandoc -e
+winget install --id MiKTeX.MiKTeX -e   # provides xelatex; auto-installs missing LaTeX packages on first use
+
+# Windows (Chocolatey — alternative)
+choco install pandoc miktex
+```
+On Windows, run PDF generation from a fresh terminal after installing MiKTeX so `xelatex` is picked
+up on `PATH`. Full TeX Live (`choco install texlive`) also works but is a much larger download than
+MiKTeX.
+
+Check everything is installed (all platforms):
 ```bash
 python scripts/generate_pdf.py --check-deps
 ```
+
+### Installing dependencies as an AI agent
+
+If you're an AI coding agent (Claude Code or otherwise) setting this skill up in a fresh
+environment, don't ask the user to manually install dependencies — install them yourself:
+
+1. Detect the OS (`platform.system()` in Python, or check for `apt-get`/`brew`/`winget`/`choco` on
+   `PATH`).
+2. Run `python scripts/generate_pdf.py --check-deps` first — it reports exactly which of
+   `pandoc`/`xelatex` are missing, so you don't install things that are already present.
+3. Install only what's missing, using the OS-appropriate commands above. Use non-interactive flags
+   so the install doesn't block waiting for confirmation: `apt-get install -y ...` on Linux,
+   `winget install -e --accept-source-agreements --accept-package-agreements ...` on Windows,
+   `brew install ...` on macOS (Homebrew is non-interactive by default).
+4. Re-run `python scripts/generate_pdf.py --check-deps` to confirm both dependencies now pass
+   before starting Phase 7 of the workflow.
+5. Only stop and ask the user if an install requires interactive/admin privileges you don't have
+   (e.g. a UAC prompt on Windows, a `sudo` password on Linux) — don't silently skip a missing
+   dependency and proceed.
+
+Once dependencies are confirmed, follow `SKILL.md`'s 7-phase workflow to conduct the review, and
+use the three scripts as documented in [Script reference](#script-reference) below —
+`search_databases.py` to aggregate/dedupe search results, `verify_citations.py` to verify every DOI
+before finalizing, and `generate_pdf.py` to render the finished markdown.
 
 ## Installing as a Claude Code skill
 
@@ -83,11 +123,9 @@ or by asking Claude to "conduct a literature review on ...".
 
 ## Installing the `paper-search` companion CLI
 
-`SKILL.md` documents `parallel-cli` as the primary search tool, with a fallback to Claude Code's
-native `WebSearch`/`WebFetch` tools when `parallel-cli` isn't installed. A third option — used for
-the "Round 2" deep-search pass in the bundled example — is the
+Paper search is done through the
 [`paper-search`](https://github.com/openags/paper-search-mcp) CLI, which queries CrossRef,
-OpenAlex, Semantic Scholar, arXiv, PubMed, and 15+ other academic sources directly.
+OpenAlex, Semantic Scholar, arXiv, PubMed, and 15+ other academic sources directly. The fallback is using the native web search which may not give good coverage and results.
 
 To install it:
 
@@ -111,63 +149,20 @@ uv run --directory /path/to/paper-search-mcp paper-search search \
 
 `paper-search` is especially useful for systematically extending a review that came up short on
 the minimum corpus size after an initial WebSearch-only pass — see the example's
-[`sources/search_log.md`](examples/wildfire-baseflow/sources/search_log.md) for exactly how this
-played out (Round 1: WebSearch → 14 sources; Round 2: `paper-search` → 34 more, 48 total).
+[`sources/search_log.md`](examples/wildfire-streamflow/sources/search_log.md) for exactly how this
+played out (Round 1: WebSearch → 39 sources; Round 2: `paper-search` → 16 more, 55 total).
 
-## Usage
-
-```bash
-# 1. Start from the template
-cp assets/review_template.md my_review.md
-
-# 2. Search — document every query in sources/search_log.md
-#    (WebSearch/WebFetch, and/or paper-search, and/or domain-specific databases)
-
-# 3. Screen candidates against your inclusion/exclusion criteria.
-#    Keep searching additional queries/sources until the retained corpus is >=30 papers
-#    (see "The 30-50 paper rule" below) — or document explicitly why the topic can't support it.
-
-# 4. Write the review: thematic synthesis (not study-by-study), following the template structure.
-
-# 5. Verify every citation
-python scripts/verify_citations.py my_review.md
-cat my_review_citation_report.json   # check for any failed DOIs; fix and re-run until 0 failed
-
-# 6. Generate the PDF
-python scripts/generate_pdf.py my_review.md --citation-style apa
-
-# 7. Tick the quality checklist in the "Review Metadata" section of the template
-#    only once each item is genuinely true.
-```
-
-### The 30–50 paper rule
-
-A single round of a handful of search queries against one tool will often retain only 10–15
-papers after screening — this is a **search-coverage problem**, not evidence the literature is
-sparse. The skill treats **30–50 unique, retained papers** as the target corpus size before
-moving on to synthesis:
-
-- If the first round falls short, run additional query rounds, add another search tool/database
-  (e.g. add `paper-search` if you started with WebSearch, or vice versa), and/or use citation
-  chaining (forward/backward citations from your strongest papers).
-- Log every additional round in `sources/search_log.md`, exactly like the first round.
-- If a genuinely narrow topic still can't reach 30 after exhaustive searching, say so explicitly
-  in the Methodology section rather than silently shipping a small corpus.
-
-See `SKILL.md` → Phase 1 step 5 and Phase 3 step 6 for the full guidance, and the bundled example
-for a case where this rule was applied to go from 14 → 48 papers across two search rounds.
 
 ## Worked example
 
-[`examples/wildfire-baseflow/`](examples/wildfire-baseflow/) is a complete review — *"Wildfire
-Impacts on Baseflow Dynamics in Snow-Dominated Mountain Catchments"* — produced end to end with
-this skill:
+[`examples/wildfire-streamflow/`](examples/wildfire-streamflow/) is a complete review — *"Wildfire
+Impacts on Streamflow in Forested Catchments"* — produced end to end with this skill:
 
-- **48 unique sources**, built from a 14-paper WebSearch round plus a 34-paper `paper-search` CLI
-  round (234 candidates screened, 0 duplicates between rounds).
-- **48/48 DOIs verified**, 0 failed (`wildfire_baseflow_review_citation_report.json`).
+- **55 unique sources**, built from a 39-paper WebSearch round plus a 16-paper `paper-search` CLI
+  round (289 candidates screened, 0 duplicates between rounds).
+- **55/55 DOIs verified**, 0 failed (`wildfire_streamflow_review_citation_report.json`).
 - Full search documentation for both rounds (`sources/search_log.md`).
-- A rendered 18-page PDF (`wildfire_baseflow_review.pdf`) in which **every in-text citation is a
+- A rendered 15-page PDF (`wildfire_streamflow_review.pdf`) in which **every in-text citation is a
   clickable link to its reference entry, and every reference links to its DOI** — produced with the
   pandoc `[@key]` + `.bib` + APA-CSL convention described under [Phase 6](SKILL.md) and in
   [`references/citation_styles.md`](references/citation_styles.md#pandoc-citations-for-linked-pdfs).

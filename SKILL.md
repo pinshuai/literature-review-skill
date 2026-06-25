@@ -667,16 +667,24 @@ pip install requests  # For citation verification
 # For PDF generation
 brew install pandoc  # macOS
 apt-get install pandoc  # Linux
+winget install --id JohnMacFarlane.Pandoc -e  # Windows
 
 # For LaTeX (PDF generation)
 brew install --cask mactex  # macOS
 apt-get install texlive-xetex  # Linux
+winget install --id MiKTeX.MiKTeX -e  # Windows — provides xelatex
 ```
 
 Check dependencies:
 ```bash
 python scripts/generate_pdf.py --check-deps
 ```
+
+**If you are the agent running this skill**: do not stop and ask the user to install these —
+detect the OS and install missing dependencies yourself with the commands above (non-interactively:
+`apt-get install -y`, `winget install -e --accept-source-agreements --accept-package-agreements`),
+then re-run `--check-deps` to confirm before proceeding to Phase 7. Only ask the user if the install
+needs interactive elevation (sudo password, UAC prompt) you don't have.
 
 ## Summary
 
