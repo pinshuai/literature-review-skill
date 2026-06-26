@@ -153,29 +153,14 @@ the minimum corpus size after an initial WebSearch-only pass — see the example
 played out (Round 1: WebSearch → 39 sources; Round 2: `paper-search` → 16 more, 55 total).
 
 
-## Worked example
+## Example
 
 [`examples/wildfire-streamflow/`](examples/wildfire-streamflow/) is a complete review — *"Wildfire
-Impacts on Streamflow in Forested Catchments"* — produced end to end with this skill:
+Impacts on Streamflow in Forested Catchments"* — produced end to end with this skill and the following prompt:
 
-- **55 unique sources**, built from a 39-paper WebSearch round plus a 16-paper `paper-search` CLI
-  round (289 candidates screened, 0 duplicates between rounds).
-- **55/55 DOIs verified**, 0 failed (`wildfire_streamflow_review_citation_report.json`).
-- Full search documentation for both rounds (`sources/search_log.md`).
-- A rendered 15-page PDF (`wildfire_streamflow_review.pdf`) in which **every in-text citation is a
-  clickable link to its reference entry, and every reference links to its DOI** — produced with the
-  pandoc `[@key]` + `.bib` + APA-CSL convention described under [Phase 6](SKILL.md) and in
-  [`references/citation_styles.md`](references/citation_styles.md#pandoc-citations-for-linked-pdfs).
-
-Use it as a reference for what each workflow phase's output should actually look like.
-
-## Script reference
-
-| Script | What it does |
-|---|---|
-| `verify_citations.py <review.md>` | Extracts every DOI from the markdown, resolves it via `doi.org`, fetches metadata from the CrossRef API, and writes `<review>_citation_report.json` with verified/failed lists and formatted citations. |
-| `generate_pdf.py <review.md> [output.pdf] [--citation-style STYLE] [--no-toc] [--no-numbers] [--check-deps]` | Wraps `pandoc --pdf-engine=xelatex` to render the markdown as a styled, paginated PDF. |
-| `search_databases.py <results.json> [--deduplicate] [--rank citations\|year\|relevance] [--year-start Y] [--year-end Y] [--format json\|markdown\|bibtex] [--output FILE] [--summary]` | Post-processes raw search-result JSON: dedupe by DOI/title, rank, year-filter, and reformat. |
+```
+/literature-review how does wildfire impact streamflow?
+```
 
 ## License
 
