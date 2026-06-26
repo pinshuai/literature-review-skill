@@ -2,7 +2,7 @@
 
 A [Claude Code](https://claude.com/claude-code) skill for conducting systematic, comprehensive
 literature reviews — searching academic databases, screening and synthesizing findings
-thematically, verifying every citation, and generating a professional PDF.
+thematically, verifying every citation, and generating a professional PDF. This skill combines the `literature-review` skill from [K-Dense-AI](https://github.com/K-Dense-AI/scientific-agent-skills/tree/main/skills/literature-review) with the [paper-search-mcp](https://github.com/openags/paper-search-mcp) to provide more options for paper search.
 
 A complete worked example (55 verified sources, full search log, citation report, and rendered
 PDF) is included in [`examples/wildfire-streamflow/`](examples/wildfire-streamflow/).
