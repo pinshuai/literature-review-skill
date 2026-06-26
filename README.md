@@ -86,27 +86,7 @@ python scripts/generate_pdf.py --check-deps
 
 ### Installing dependencies as an AI agent
 
-If you're an AI coding agent (Claude Code or otherwise) setting this skill up in a fresh
-environment, don't ask the user to manually install dependencies — install them yourself:
-
-1. Detect the OS (`platform.system()` in Python, or check for `apt-get`/`brew`/`winget`/`choco` on
-   `PATH`).
-2. Run `python scripts/generate_pdf.py --check-deps` first — it reports exactly which of
-   `pandoc`/`xelatex` are missing, so you don't install things that are already present.
-3. Install only what's missing, using the OS-appropriate commands above. Use non-interactive flags
-   so the install doesn't block waiting for confirmation: `apt-get install -y ...` on Linux,
-   `winget install -e --accept-source-agreements --accept-package-agreements ...` on Windows,
-   `brew install ...` on macOS (Homebrew is non-interactive by default).
-4. Re-run `python scripts/generate_pdf.py --check-deps` to confirm both dependencies now pass
-   before starting Phase 7 of the workflow.
-5. Only stop and ask the user if an install requires interactive/admin privileges you don't have
-   (e.g. a UAC prompt on Windows, a `sudo` password on Linux) — don't silently skip a missing
-   dependency and proceed.
-
-Once dependencies are confirmed, follow `SKILL.md`'s 7-phase workflow to conduct the review, and
-use the three scripts as documented in [Script reference](#script-reference) below —
-`search_databases.py` to aggregate/dedupe search results, `verify_citations.py` to verify every DOI
-before finalizing, and `generate_pdf.py` to render the finished markdown.
+See [AI agent: complete setup](#ai-agent-complete-setup) below for the full installation procedure, including both skill installs and all dependency verification steps.
 
 ## Installing as a Claude Code skill
 
@@ -165,18 +145,7 @@ Create a `.env` file in the repo root, or set these environment variables:
 
 ### AI agent installation instructions
 
-If you are an AI coding agent setting this up in a fresh environment:
-
-1. **Check for `uv`**: run `which uv`. If missing, install via `brew install uv` (macOS) or
-   `curl -LsSf https://astral.sh/uv/install.sh | sh` (Linux/macOS).
-2. **Clone the repo**: `git clone https://github.com/openags/paper-search-mcp.git ~/github/paper-search-mcp`
-3. **Sync dependencies**: `uv sync --directory ~/github/paper-search-mcp`
-4. **Install the skill**: copy `claude-code/SKILL.md` to `~/.claude/skills/paper-search/SKILL.md`,
-   replacing every `<REPO_PATH>` with the absolute path of the clone
-   (use `sed 's|<REPO_PATH>|/absolute/path|g'`).
-5. **Verify**: run `uv run --directory <REPO_PATH> paper-search sources` — should print a JSON list
-   of available sources with no errors.
-6. The skill is active immediately; no Claude Code restart required.
+See [AI agent: complete setup](#ai-agent-complete-setup) below for the full end-to-end procedure that installs both this skill and the `paper-search` companion skill with verification steps.
 
 ### Running searches
 
@@ -215,6 +184,115 @@ academic sources — see `SKILL.md` for the fallback syntax.
 [`sources/search_log.md`](examples/wildfire-streamflow/sources/search_log.md) for how a
 two-round search (WebSearch round 1 + `paper-search` round 2) reached 55 retained papers.
 
+
+## AI agent: complete setup
+
+If you are an AI coding agent setting up this skill in a fresh environment, follow these steps in order. Do not ask the user to run any of them — detect the environment and execute them yourself.
+
+### Step 1 — Install the `literature-review` skill
+
+```bash
+# Determine repo root (works whether invoked from inside the repo or by absolute path)
+LR_REPO=$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+
+mkdir -p ~/.claude/skills/literature-review
+cp -r "$LR_REPO/SKILL.md" "$LR_REPO/assets" "$LR_REPO/references" "$LR_REPO/scripts" \
+  ~/.claude/skills/literature-review/
+```
+
+**Verify**: `ls ~/.claude/skills/literature-review/SKILL.md` — must exist with no error.
+
+### Step 2 — Install `uv` (required for paper-search)
+
+```bash
+# macOS
+which uv || brew install uv
+
+# Linux / macOS (universal installer)
+which uv || curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Verify**: `uv --version` — must print a version string (e.g. `uv 0.x.x`).
+
+### Step 3 — Clone and set up the `paper-search` repo
+
+```bash
+PS_REPO=~/github/paper-search-mcp
+
+# Clone if not present; pull to update if already cloned
+git clone https://github.com/openags/paper-search-mcp.git "$PS_REPO" 2>/dev/null \
+  || git -C "$PS_REPO" pull --ff-only
+
+uv sync --directory "$PS_REPO"
+```
+
+**Verify**: `uv sync` must complete without errors.
+
+### Step 4 — Install the `paper-search` skill
+
+```bash
+mkdir -p ~/.claude/skills/paper-search
+
+# realpath resolves ~ and symlinks so the path in the skill file is absolute
+PS_REPO_ABS=$(realpath ~/github/paper-search-mcp)
+
+sed "s|<REPO_PATH>|${PS_REPO_ABS}|g" \
+  "$PS_REPO_ABS/claude-code/SKILL.md" \
+  > ~/.claude/skills/paper-search/SKILL.md
+```
+
+**Verify** that `<REPO_PATH>` was fully substituted (result must be 0):
+
+```bash
+grep -c '<REPO_PATH>' ~/.claude/skills/paper-search/SKILL.md
+# Expected output: 0
+```
+
+### Step 5 — Verify `paper-search` CLI works
+
+```bash
+uv run --directory ~/github/paper-search-mcp paper-search sources
+```
+
+**Expected**: a JSON array listing 15+ source names (arxiv, pubmed, semantic, crossref, openalex, ...).  
+**If it errors**: confirm `uv sync` in Step 3 completed cleanly; check that `uv` is on `PATH`.
+
+### Step 6 — Install Python dependencies
+
+```bash
+pip install requests   # or: pip install -r "$LR_REPO/requirements.txt"
+```
+
+**Verify**: `python -c "import requests; print('OK')"` prints `OK`.
+
+### Step 7 — Install pandoc + xelatex (Phase 7 PDF generation only)
+
+```bash
+python ~/.claude/skills/literature-review/scripts/generate_pdf.py --check-deps
+```
+
+If either dependency is reported missing, install it with the OS-appropriate command from the [Requirements](#requirements) section above. Use non-interactive flags (`-y`, `--accept-source-agreements`, etc.). Only pause and ask the user if the install requires interactive admin/sudo credentials you do not have.
+
+Re-run `--check-deps` after installing to confirm both `pandoc` and `xelatex` pass before proceeding to Phase 7.
+
+### Step 8 — End-to-end smoke test
+
+Run a minimal search to confirm the full stack works:
+
+```bash
+uv run --directory ~/github/paper-search-mcp paper-search search \
+  "machine learning hydrology" -n 2 -s arxiv > /tmp/lr_smoke_test.json
+
+python ~/.claude/skills/literature-review/scripts/search_databases.py \
+  /tmp/lr_smoke_test.json --summary
+```
+
+**Expected**: summary output showing ≥ 1 result from arxiv.  
+**If 0 results**: check network access; arXiv is available without any API key.  
+
+Both skills are active immediately — no Claude Code restart required.
+
+---
 
 ## Example
 
