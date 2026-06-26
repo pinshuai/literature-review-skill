@@ -143,48 +143,6 @@ Create a `.env` file in the repo root, or set these environment variables:
 | `IEEE_API_KEY` | IEEE Xplore | developer.ieee.org |
 | `DOAJ_API_KEY` | DOAJ | Free from doaj.org |
 
-### AI agent installation instructions
-
-See [AI agent: complete setup](#ai-agent-complete-setup) below for the full end-to-end procedure that installs both this skill and the `paper-search` companion skill with verification steps.
-
-### Running searches
-
-The `paper-search` CLI is invoked via `uv run` from the cloned source repo:
-
-```bash
-REPO=~/github/paper-search-mcp
-
-# Search (primary method for every literature review)
-uv run --directory $REPO paper-search search \
-  "your topic keywords" -n 15 -s arxiv,semantic,crossref,openalex
-
-# Biomedical sources
-uv run --directory $REPO paper-search search \
-  "your topic keywords" -n 15 -s pubmed,pmc,biorxiv,medrxiv
-
-# With year filter
-uv run --directory $REPO paper-search search \
-  "your topic keywords" -n 15 -s semantic -y 2020-2025
-
-# Read full text of a paper
-uv run --directory $REPO paper-search read arxiv 2401.12345
-
-# List all available sources
-uv run --directory $REPO paper-search sources
-```
-
-- `-n` — results per source (default 5; use 15–20 for systematic reviews)
-- `-s` — comma-separated sources, or `all`. Prefer targeted source sets over `all` for speed.
-- `-y` — year filter applied to Semantic Scholar results (e.g. `"2020"` or `"2018-2022"`)
-
-If `uv` or the repo are unavailable, fall back to WebSearch with `allowed_domains` set to
-academic sources — see `SKILL.md` for the fallback syntax.
-
-`paper-search` is especially useful for building a corpus systematically — see the example's
-[`sources/search_log.md`](examples/wildfire-streamflow/sources/search_log.md) for how a
-two-round search (WebSearch round 1 + `paper-search` round 2) reached 55 retained papers.
-
-
 ## AI agent: complete setup
 
 If you are an AI coding agent setting up this skill in a fresh environment, follow these steps in order. Do not ask the user to run any of them — detect the environment and execute them yourself.
@@ -294,7 +252,7 @@ Both skills are active immediately — no Claude Code restart required.
 
 ---
 
-## Example
+## Literature Review Example
 
 [`examples/wildfire-streamflow/`](examples/wildfire-streamflow/) is a complete review — *"Wildfire
 Impacts on Streamflow in Forested Catchments"* — produced end to end with this skill and the following prompt:
@@ -303,15 +261,6 @@ Impacts on Streamflow in Forested Catchments"* — produced end to end with this
 /literature-review how does wildfire impact streamflow?
 ```
 
-Use it as a reference for what each workflow phase's output should actually look like.
-
-## Script reference
-
-| Script | What it does |
-|---|---|
-| `verify_citations.py <review.md>` | Extracts every DOI from the markdown, resolves it via `doi.org`, fetches metadata from the CrossRef API, and writes `<review>_citation_report.json` with verified/failed lists and formatted citations. |
-| `generate_pdf.py <review.md> [output.pdf] [--citation-style STYLE] [--no-toc] [--no-numbers] [--check-deps]` | Wraps `pandoc --pdf-engine=xelatex` to render the markdown as a styled, paginated PDF. |
-| `search_databases.py <results.json> [--deduplicate] [--rank citations\|year\|relevance] [--year-start Y] [--year-end Y] [--format json\|markdown\|bibtex] [--output FILE] [--summary]` | Post-processes raw search-result JSON: dedupe by DOI/title, rank, year-filter, and reformat. |
 
 ## License
 
