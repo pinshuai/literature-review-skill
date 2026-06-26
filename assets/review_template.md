@@ -51,13 +51,21 @@
 
 ### 2.2 Search Strategy
 
-**Databases:** [PubMed, Scopus, Web of Science, bioRxiv, etc.]  
+**Primary tool:** `paper-search` CLI — queries arXiv, PubMed, Semantic Scholar, CrossRef, OpenAlex, bioRxiv, and 15+ other sources via `uv run --directory ~/github/paper-search-mcp paper-search search "<query>" -n 15 -s <sources>`. Outputs JSON; redirect with `>` to save each query's results.  
+**Fallback:** WebSearch/WebFetch — used when paper-search is unavailable or a source is not covered (e.g., paywalled journals, ChEMBL, UniProt).
+
+**Databases:** [List the `-s` sources used, e.g.: arxiv, semantic, crossref, openalex, pubmed, pmc, biorxiv]  
 **Supplementary:** [Citation chaining, grey literature, trial registries]
 
-**Search String Example:**
+**paper-search Command Example:**
+```bash
+uv run --directory ~/github/paper-search-mcp paper-search search \
+  "your topic keywords" -n 15 -s arxiv,semantic,crossref,openalex > results_round1.json
 ```
-("CRISPR"[Title/Abstract] OR "Cas9"[Title/Abstract]) AND 
-("disease"[MeSH Terms]) AND ("2015/01/01"[Date] : "2024/12/31"[Date])
+
+**WebSearch Fallback Example:**
+```
+WebSearch(query="your topic keywords", allowed_domains=["arxiv.org","pubmed.ncbi.nlm.nih.gov","semanticscholar.org","biorxiv.org"])
 ```
 
 **Dates:** [YYYY-MM-DD to YYYY-MM-DD] | **Executed:** [Date]  

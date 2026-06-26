@@ -13,8 +13,9 @@ The skill walks through a 7-phase workflow:
 
 1. **Planning & Scoping** — define the research question, set inclusion/exclusion criteria, and
    set a minimum corpus-size target (see [The 30–50 paper rule](#the-3050-paper-rule) below).
-2. **Systematic Search** — search multiple databases/sources (web search, PubMed, arXiv,
-   Semantic Scholar, CrossRef, OpenAlex, etc.), documenting every query.
+2. **Systematic Search** — search 20+ academic databases via the `paper-search` skill (arXiv,
+   PubMed, Semantic Scholar, CrossRef, OpenAlex, bioRxiv, etc.), with WebSearch as fallback,
+   documenting every query.
 3. **Screening & Selection** — deduplicate, screen by title/abstract/full-text against the stated
    criteria, and verify the corpus meets the minimum size target before moving on.
 4. **Data Extraction & Quality Assessment** — extract key data from each included study and rate
@@ -40,11 +41,10 @@ Full details live in [`SKILL.md`](SKILL.md), which is the skill definition Claud
 | `scripts/search_databases.py` | Deduplicates, ranks, year-filters, and reformats raw search-result JSON. |
 | `examples/wildfire-streamflow/` | A complete, real review produced with this skill — see its own [README](examples/wildfire-streamflow/README.md). |
 
-**Not included**: this package omits the optional AI-schematic-generation scripts
-(`generate_schematic.py` / `generate_schematic_ai.py`) that exist in some versions of this skill.
-They require an `OPENROUTER_API_KEY` and generate figures via an external image model — out of
-scope for this package. Figures are optional in any case; a plain markdown/ASCII PRISMA flow
-diagram is sufficient.
+**Not available — do not attempt to call**: `generate_schematic.py` and `generate_schematic_ai.py`
+are not included in this package. These scripts exist in some versions of this skill but are out
+of scope here. Figures are optional; use a plain markdown/ASCII PRISMA flow diagram instead
+(as shown in Phase 2.5 of SKILL.md).
 
 ## Requirements
 
@@ -121,36 +121,99 @@ cp -r SKILL.md assets references scripts ~/.claude/skills/literature-review/
 present, Claude Code will discover it automatically and you can invoke it with `/literature-review`
 or by asking Claude to "conduct a literature review on ...".
 
-## Installing the `paper-search` companion CLI
+## Installing the `paper-search` companion skill
 
-Paper search is done through the
-[`paper-search`](https://github.com/openags/paper-search-mcp) CLI, which queries CrossRef,
-OpenAlex, Semantic Scholar, arXiv, PubMed, and 15+ other academic sources directly. The fallback is using the native web search which may not give good coverage and results.
+`paper-search` is the **default search engine** for this skill. It queries CrossRef, OpenAlex,
+Semantic Scholar, arXiv, PubMed, and 15+ other academic sources directly, returning structured JSON
+with DOIs and citation counts. WebSearch/WebFetch are used as fallback when paper-search is
+unavailable or a source is not covered.
 
-To install it:
-
-```bash
-git clone https://github.com/openags/paper-search-mcp.git /path/to/paper-search-mcp
-cd /path/to/paper-search-mcp
-uv sync   # or: pip install -e .
-```
-
-Run a search:
+### Installation (skill — recommended)
 
 ```bash
-uv run --directory /path/to/paper-search-mcp paper-search search \
-  "your topic keywords" -n 15 -s crossref,openalex,semantic
+# 1. Clone the repo
+git clone https://github.com/openags/paper-search-mcp.git ~/github/paper-search-mcp
+
+# 2. Install dependencies (requires uv)
+brew install uv          # macOS; or: curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync --directory ~/github/paper-search-mcp
+
+# 3. Install the Claude Code skill (substitute the actual clone path)
+mkdir -p ~/.claude/skills/paper-search
+REPO_PATH=~/github/paper-search-mcp   # change this if you cloned elsewhere
+sed "s|<REPO_PATH>|${REPO_PATH}|g" \
+  "$REPO_PATH/claude-code/SKILL.md" \
+  > ~/.claude/skills/paper-search/SKILL.md
+
+# 4. Verify
+uv run --directory ~/github/paper-search-mcp paper-search sources
 ```
 
-- `-n` — results per source (default 5)
-- `-s` — comma-separated sources, or `all` (default: all). For speed, prefer targeted sources
-  (`crossref,openalex,semantic`) over `all`.
-- `-y` — optional year filter (e.g. `2020` or `2018-2022`), applied to Semantic Scholar results
+The skill is available immediately in the current session (no restart needed).
 
-`paper-search` is especially useful for systematically extending a review that came up short on
-the minimum corpus size after an initial WebSearch-only pass — see the example's
-[`sources/search_log.md`](examples/wildfire-streamflow/sources/search_log.md) for exactly how this
-played out (Round 1: WebSearch → 39 sources; Round 2: `paper-search` → 16 more, 55 total).
+### Optional API keys (improve rate limits / unlock extra sources)
+
+Create a `.env` file in the repo root, or set these environment variables:
+
+| Variable | Service | Where to get it |
+|---|---|---|
+| `UNPAYWALL_EMAIL` | Unpaywall | Any valid email (required for Unpaywall source) |
+| `CORE_API_KEY` | CORE | Free at core.ac.uk |
+| `SEMANTIC_SCHOLAR_API_KEY` | Semantic Scholar | Free registration (improves rate limits) |
+| `IEEE_API_KEY` | IEEE Xplore | developer.ieee.org |
+| `DOAJ_API_KEY` | DOAJ | Free from doaj.org |
+
+### AI agent installation instructions
+
+If you are an AI coding agent setting this up in a fresh environment:
+
+1. **Check for `uv`**: run `which uv`. If missing, install via `brew install uv` (macOS) or
+   `curl -LsSf https://astral.sh/uv/install.sh | sh` (Linux/macOS).
+2. **Clone the repo**: `git clone https://github.com/openags/paper-search-mcp.git ~/github/paper-search-mcp`
+3. **Sync dependencies**: `uv sync --directory ~/github/paper-search-mcp`
+4. **Install the skill**: copy `claude-code/SKILL.md` to `~/.claude/skills/paper-search/SKILL.md`,
+   replacing every `<REPO_PATH>` with the absolute path of the clone
+   (use `sed 's|<REPO_PATH>|/absolute/path|g'`).
+5. **Verify**: run `uv run --directory <REPO_PATH> paper-search sources` — should print a JSON list
+   of available sources with no errors.
+6. The skill is active immediately; no Claude Code restart required.
+
+### Running searches
+
+The `paper-search` CLI is invoked via `uv run` from the cloned source repo:
+
+```bash
+REPO=~/github/paper-search-mcp
+
+# Search (primary method for every literature review)
+uv run --directory $REPO paper-search search \
+  "your topic keywords" -n 15 -s arxiv,semantic,crossref,openalex
+
+# Biomedical sources
+uv run --directory $REPO paper-search search \
+  "your topic keywords" -n 15 -s pubmed,pmc,biorxiv,medrxiv
+
+# With year filter
+uv run --directory $REPO paper-search search \
+  "your topic keywords" -n 15 -s semantic -y 2020-2025
+
+# Read full text of a paper
+uv run --directory $REPO paper-search read arxiv 2401.12345
+
+# List all available sources
+uv run --directory $REPO paper-search sources
+```
+
+- `-n` — results per source (default 5; use 15–20 for systematic reviews)
+- `-s` — comma-separated sources, or `all`. Prefer targeted source sets over `all` for speed.
+- `-y` — year filter applied to Semantic Scholar results (e.g. `"2020"` or `"2018-2022"`)
+
+If `uv` or the repo are unavailable, fall back to WebSearch with `allowed_domains` set to
+academic sources — see `SKILL.md` for the fallback syntax.
+
+`paper-search` is especially useful for building a corpus systematically — see the example's
+[`sources/search_log.md`](examples/wildfire-streamflow/sources/search_log.md) for how a
+two-round search (WebSearch round 1 + `paper-search` round 2) reached 55 retained papers.
 
 
 ## Example
@@ -161,6 +224,16 @@ Impacts on Streamflow in Forested Catchments"* — produced end to end with this
 ```
 /literature-review how does wildfire impact streamflow?
 ```
+
+Use it as a reference for what each workflow phase's output should actually look like.
+
+## Script reference
+
+| Script | What it does |
+|---|---|
+| `verify_citations.py <review.md>` | Extracts every DOI from the markdown, resolves it via `doi.org`, fetches metadata from the CrossRef API, and writes `<review>_citation_report.json` with verified/failed lists and formatted citations. |
+| `generate_pdf.py <review.md> [output.pdf] [--citation-style STYLE] [--no-toc] [--no-numbers] [--check-deps]` | Wraps `pandoc --pdf-engine=xelatex` to render the markdown as a styled, paginated PDF. |
+| `search_databases.py <results.json> [--deduplicate] [--rank citations\|year\|relevance] [--year-start Y] [--year-end Y] [--format json\|markdown\|bibtex] [--output FILE] [--summary]` | Post-processes raw search-result JSON: dedupe by DOI/title, rank, year-filter, and reformat. |
 
 ## License
 

@@ -13,18 +13,36 @@ metadata: {"version": "1.2", "skill-author": "K-Dense Inc.", "openclaw": {"prima
 
 Conduct systematic, comprehensive literature reviews following rigorous academic methodology. Search multiple literature databases, synthesize findings thematically, verify all citations for accuracy, and generate professional output documents in markdown and PDF formats.
 
-By default this skill is documented around the **parallel-web skill** (`parallel-cli search`) and specialized database access skills (gget, bioservices, datacommons-client) as the primary search tools — but see the Environment Note immediately below: in this environment, those are skipped in favor of Claude Code's native WebSearch/WebFetch tools. It also provides specialized tools for citation verification, result aggregation, and document generation.
+This skill uses the **`paper-search` skill** as the primary search engine and falls back to Claude Code's native **WebSearch/WebFetch** tools when paper-search is unavailable or returns insufficient results. It also provides specialized tools for citation verification, result aggregation, and document generation.
 
-## Environment Note: Tool Substitution (Always Apply)
+## Search Engine Priority (Always Apply)
 
-**Skip `parallel-cli`, `gget`, and `scientific-schematics` entirely.** These tools are not installed/available in this environment. Do not attempt to install or authenticate them. Use Claude Code's native tools instead, everywhere this document references the skipped tools:
+**Use `paper-search` first for all academic literature searches.** It queries 20+ databases (arXiv, PubMed, Semantic Scholar, CrossRef, OpenAlex, bioRxiv, and more) with a single command, returns structured JSON with DOIs and citation counts, and is far more comprehensive than web search for finding peer-reviewed literature.
 
-- **Web/academic search** → use the native **WebSearch** tool (pass `allowed_domains`/`blocked_domains` instead of `--include-domains`) in place of `parallel-cli search`.
-- **Full-text/URL extraction** → use the native **WebFetch** tool in place of `parallel-cli extract`.
-- **PubMed, bioRxiv, and other domain-specific lookups** → use WebSearch/WebFetch scoped to the relevant domain (e.g., `pubmed.ncbi.nlm.nih.gov`, `biorxiv.org`) instead of `gget search pubmed`/`gget search biorxiv`.
-- **Figures/schematics** → skip the scientific-schematics step entirely. Figures are optional, not mandatory, in this environment (this overrides the "MANDATORY" language below).
+```bash
+# Primary: paper-search (structured, multi-database, returns JSON with DOIs)
+uv run --directory /Users/shuai/github/paper-search-mcp paper-search search \
+  "<query>" -n 15 -s arxiv,semantic,crossref,openalex,pubmed
 
-Document this substitution in the review's Methodology section (as a brief transparency note), the same way the rest of the search strategy is documented. All other phases of the workflow (screening, extraction, thematic synthesis, citation verification via `scripts/verify_citations.py`, PDF generation via `scripts/generate_pdf.py`) are unaffected and should proceed as written.
+# Full-text of a specific paper
+uv run --directory /Users/shuai/github/paper-search-mcp paper-search read <source> <paper_id>
+```
+
+**Fall back to WebSearch/WebFetch when:**
+- `paper-search` is unavailable (repo missing, `uv` not installed)
+- A source is not covered by paper-search (e.g., paywalled journal pages, specialized databases like ChEMBL/UniProt/AlphaFold)
+- Citation chaining requires fetching a specific URL
+- The corpus is still below 30 papers after all paper-search rounds
+
+**WebSearch fallback syntax:**
+```
+WebSearch(query="...", allowed_domains=["arxiv.org","pubmed.ncbi.nlm.nih.gov","semanticscholar.org","biorxiv.org","nature.com","agupubs.onlinelibrary.wiley.com"])
+WebFetch(url="https://doi.org/10.xxxx/yyyy", prompt="Extract title, authors, year, abstract, key findings")
+```
+
+**Figures/schematics**: skip `scientific-schematics` entirely — figures are optional. Use a plain markdown/ASCII PRISMA flow diagram instead.
+
+Document the search tools used in the review's Methodology section. All other phases (screening, extraction, thematic synthesis, citation verification via `scripts/verify_citations.py`, PDF generation via `scripts/generate_pdf.py`) are unaffected and should proceed as written.
 
 ## When to Use This Skill
 
@@ -62,7 +80,7 @@ Literature reviews follow a structured, multi-phase workflow:
    - List synonyms, abbreviations, and related terms for each concept
    - Plan Boolean operators (AND, OR, NOT) to combine terms
    - Select minimum 3 complementary databases
-   - **Use the native WebSearch tool for initial scoping** (see Environment Note) to quickly gauge the landscape before formal database searches
+   - **Use `paper-search` for initial scoping** (see Search Engine Priority above) to quickly gauge the landscape; fall back to WebSearch if paper-search is unavailable
 
 4. **Set Inclusion/Exclusion Criteria**:
    - Date range (e.g., last 10 years: 2015-2024)
@@ -80,30 +98,44 @@ Literature reviews follow a structured, multi-phase workflow:
 
 1. **Multi-Database Search**:
 
-   Select databases appropriate for the domain. **Always start with the native WebSearch tool for broad academic coverage**, then supplement with domain-specific searches.
+   Select databases appropriate for the domain. **Always start with `paper-search`** for structured, multi-database academic coverage. Fall back to WebSearch/WebFetch only when paper-search cannot cover a source or is unavailable (see Search Engine Priority above).
 
-   **Web-Based Academic Search (native WebSearch/WebFetch — START HERE):**
-   - Use the **WebSearch** tool with `allowed_domains` set to academic sources for broad scholarly coverage
-   - Run two searches: academic-domain-filtered + general (no domain filter) to catch all relevant sources
-     - Academic-focused: `WebSearch(query="your research topic keyword1 keyword2", allowed_domains=["arxiv.org","pubmed.ncbi.nlm.nih.gov","semanticscholar.org","biorxiv.org","medrxiv.org","ncbi.nlm.nih.gov","nature.com","science.org","ieee.org","acm.org","springer.com","wiley.com","cell.com","pnas.org","nih.gov"])`
-     - General: `WebSearch(query="your research topic keyword1 keyword2")` with no domain filter
-   - Save a record of each query and its returned links/snippets to `sources/search_log.md` for reproducibility (WebSearch has no `--json -o` file output, so capture results manually)
-   - Use **WebFetch** to fetch full content from specific paper URLs or PDFs found in search results, e.g. `WebFetch(url="https://arxiv.org/abs/XXXX.XXXXX", prompt="Extract authors, year, DOI, abstract, and key findings")`
-   - Many publisher pages (ScienceDirect, Wiley, paywalled journals) will return 403/402 via WebFetch — in that case, rely on search-result snippets plus open-access mirrors (PMC, USGS Pubs Warehouse, IOPscience, agency repositories) and note in the methodology that full text was unavailable
+   **Primary: paper-search CLI (START HERE)**
+   - Run 2–4 targeted queries covering your main concepts and synonyms, targeting the most relevant sources for your domain.
+   - **The `search` command outputs JSON to stdout — always redirect with `>` to save results.**
+     ```bash
+     # General academic (good starting point for any domain)
+     uv run --directory /Users/shuai/github/paper-search-mcp paper-search search \
+       "keyword1 keyword2 keyword3" -n 15 -s arxiv,semantic,crossref,openalex \
+       > results_round1a.json
 
-   **Biomedical & Life Sciences:**
-   - Use **WebSearch** scoped to `pubmed.ncbi.nlm.nih.gov` / `ncbi.nlm.nih.gov` for PubMed/PMC instead of `gget search pubmed`
-   - Use **WebSearch** scoped to `biorxiv.org` / `medrxiv.org` for preprints instead of `gget search biorxiv`
-   - For ChEMBL, KEGG, UniProt, etc., use WebSearch/WebFetch against the relevant database's web interface if no native tool is available
+     # Biomedical focus
+     uv run --directory /Users/shuai/github/paper-search-mcp paper-search search \
+       "keyword1 keyword2" -n 15 -s pubmed,pmc,biorxiv,medrxiv,europepmc \
+       > results_round1b.json
 
-   **General Scientific Literature:**
-   - Search arXiv via direct API (preprints in physics, math, CS, q-bio)
-   - Search Semantic Scholar via API (200M+ papers, cross-disciplinary)
-   - Use Google Scholar for comprehensive coverage (manual or careful scraping)
+     # With year filter (Semantic Scholar)
+     uv run --directory /Users/shuai/github/paper-search-mcp paper-search search \
+       "keyword1 keyword2" -n 15 -s semantic -y 2020-2025 \
+       > results_round1c.json
+     ```
+   - Log each query (string, sources, `-n`, result count) to `sources/search_log.md`
+   - To read full text of a promising paper: `uv run ... paper-search read <source> <paper_id>`
+   - List all available sources: `uv run ... paper-search sources`
 
-   **Specialized Databases:**
-   - For protein structures, cancer genomics, demographic/statistical data, etc., use WebSearch/WebFetch against the relevant database's web interface (e.g., alphafold.ebi.ac.uk, cancer.sanger.ac.uk/cosmic) instead of `gget`/`datacommons-client`
-   - Use specialized databases as appropriate for the domain
+   **Fallback: WebSearch/WebFetch**
+
+   Use when paper-search is unavailable, or to supplement for sources it doesn't cover:
+   - Academic-focused web search:
+     ```
+     WebSearch(query="keyword1 keyword2", allowed_domains=["arxiv.org","pubmed.ncbi.nlm.nih.gov","semanticscholar.org","biorxiv.org","nature.com","science.org","agupubs.onlinelibrary.wiley.com","hess.copernicus.org"])
+     ```
+   - General (no domain filter): `WebSearch(query="keyword1 keyword2")`
+   - Full-text fetch: `WebFetch(url="https://arxiv.org/abs/XXXX.XXXXX", prompt="Extract authors, year, DOI, abstract, key findings")`
+   - Many publisher pages (ScienceDirect, Wiley, paywalled journals) return 403/402 via WebFetch — rely on open-access mirrors (PMC, IOPscience, agency repositories) and note in methodology that full text was unavailable
+
+   **Specialized Databases (WebFetch only)**
+   - For sources not covered by paper-search (ChEMBL, UniProt, KEGG, AlphaFold, COSMIC, PDB): use WebFetch against the database's own web interface
 
 2. **Document Search Parameters**:
    ```markdown
@@ -124,12 +156,18 @@ Literature reviews follow a structured, multi-phase workflow:
    Repeat for each database searched.
 
 3. **Export and Aggregate Results**:
-   - Export results in JSON format from each database
-   - Combine all results into a single file
-   - Use `scripts/search_databases.py` for post-processing:
+   - Each `paper-search` query saves a separate JSON file (via `>` redirection above). Merge all per-query files into one before processing:
      ```bash
-     python search_databases.py combined_results.json \
+     # Merge multiple JSON arrays into one (requires jq)
+     jq -s 'add' results_*.json > combined_results.json
+
+     # Or without jq: open each file in Python and concatenate the lists, then write combined_results.json
+     ```
+   - Then post-process with `scripts/search_databases.py`:
+     ```bash
+     python scripts/search_databases.py combined_results.json \
        --deduplicate \
+       --rank citations \
        --format markdown \
        --output aggregated_results.md
      ```
@@ -137,6 +175,7 @@ Literature reviews follow a structured, multi-phase workflow:
 ### Phase 3: Screening and Selection
 
 1. **Deduplication**:
+   - paper-search returns JSON per query; combine and deduplicate by DOI across all rounds before screening
    ```bash
    python search_databases.py results.json --deduplicate --output unique_results.json
    ```
@@ -172,7 +211,7 @@ Literature reviews follow a structured, multi-phase workflow:
    - Check the final retained count (`n = B` above) against the **30-50 unique paper target** set in Phase 1.
    - **If `n < 30`**: do not proceed to synthesis yet. Run additional search rounds first:
      - Add more queries covering sub-topics, synonyms, and related mechanisms not yet covered by the initial query set.
-     - Broaden to additional databases/sources (e.g., if only WebSearch was used, add a dedicated CLI/API tool such as the `paper-search` skill querying CrossRef/OpenAlex/Semantic Scholar, or vice versa) — different tools and sources surface different candidates even for the same topic.
+     - Broaden to additional databases/sources (e.g., add `-s pubmed,europepmc,doaj` if you only queried `arxiv,semantic` so far, or switch to WebSearch as fallback) — different sources surface different candidates even for the same topic.
      - Use citation chaining (forward/backward citations, see below) from the strongest papers already retained.
      - Re-screen the new candidates against the same inclusion/exclusion criteria, dedupe against the existing set (by DOI), and re-check the total.
    - Repeat additional search rounds until the retained total reaches 30-50 (more is fine; there is no hard ceiling), or until you can document that the topic is genuinely too narrow to support that many peer-reviewed sources.
@@ -332,64 +371,75 @@ Literature reviews follow a structured, multi-phase workflow:
 
 ## Database-Specific Search Guidance
 
+### paper-search sources reference
+
+`paper-search` covers these sources directly (pass via `-s`):
+
+| Source key | Database | Best for |
+|---|---|---|
+| `arxiv` | arXiv | Physics, CS, math, q-bio preprints |
+| `pubmed` | PubMed | Biomedical literature |
+| `pmc` | PubMed Central | Open-access biomedical full text |
+| `semantic` | Semantic Scholar | Cross-disciplinary, citation counts |
+| `crossref` | CrossRef | DOI resolution, metadata |
+| `openalex` | OpenAlex | Open, 200M+ works |
+| `biorxiv` / `medrxiv` | bioRxiv / medRxiv | Life science / medical preprints |
+| `europepmc` | Europe PMC | European biomedical |
+| `doaj` | DOAJ | Open-access journals |
+| `core` | CORE | Open-access full text (needs `CORE_API_KEY`) |
+| `zenodo` | Zenodo | Data, software, grey literature |
+| `dblp` | DBLP | Computer science |
+| `hal` | HAL | French research (open access) |
+
+For speed, use targeted source sets rather than `all`:
+- **Physical/earth sciences**: `-s arxiv,semantic,crossref,openalex`
+- **Biomedical**: `-s pubmed,pmc,biorxiv,medrxiv,europepmc,semantic`
+- **Computer science / ML**: `-s arxiv,semantic,dblp,crossref`
+
+**Sources not listed above** (ChEMBL, UniProt, KEGG, AlphaFold, PDB, COSMIC) are not covered by paper-search — use WebFetch against their web interfaces (see "Specialized Databases (WebFetch only)" below).
+
 ### PubMed / PubMed Central
 
-Access via native **WebSearch** scoped to PubMed/PMC instead of `gget`:
-```
-WebSearch(query="CRISPR gene editing", allowed_domains=["pubmed.ncbi.nlm.nih.gov","ncbi.nlm.nih.gov"])
-```
-Then **WebFetch** individual result URLs for abstracts/full text.
+**Primary**: `uv run ... paper-search search "<query>" -s pubmed,pmc -n 15`
+
+**Fallback** (WebSearch): `WebSearch(query="...", allowed_domains=["pubmed.ncbi.nlm.nih.gov","ncbi.nlm.nih.gov"])`
 
 **Search tips**:
-- Use MeSH terms: `"sickle cell disease"[MeSH]`
-- Field tags: `[Title]`, `[Title/Abstract]`, `[Author]`
-- Date filters: `2020:2024[Publication Date]`
-- Boolean operators: AND, OR, NOT
+- Use MeSH terms in your query string: e.g. `"sickle cell disease" gene therapy`
+- Boolean: AND, OR, NOT work in the query string
 - See MeSH browser: https://meshb.nlm.nih.gov/search
 
 ### bioRxiv / medRxiv
 
-Access via native **WebSearch** scoped to bioRxiv/medRxiv instead of `gget`:
-```
-WebSearch(query="CRISPR sickle cell", allowed_domains=["biorxiv.org","medrxiv.org"])
-```
+**Primary**: `uv run ... paper-search search "<query>" -s biorxiv,medrxiv -n 10`
 
-**Important considerations**:
-- Preprints are not peer-reviewed
-- Verify findings with caution
-- Check if preprint has been published (CrossRef)
-- Note preprint version and date
+**Fallback**: `WebSearch(query="...", allowed_domains=["biorxiv.org","medrxiv.org"])`
+
+Preprints are not peer-reviewed — verify findings with caution and check if the preprint has since been published (CrossRef).
 
 ### arXiv
 
-Access via direct API or WebFetch:
-```python
-# Example search categories:
-# q-bio.QM (Quantitative Methods)
-# q-bio.GN (Genomics)
-# q-bio.MN (Molecular Networks)
-# cs.LG (Machine Learning)
-# stat.ML (Machine Learning Statistics)
+**Primary**: `uv run ... paper-search search "<query>" -s arxiv -n 15`
 
-# Search format: category AND terms
-search_query = "cat:q-bio.QM AND ti:\"single cell sequencing\""
+**Fallback** (WebFetch to arXiv API):
+```
+WebFetch(url="https://export.arxiv.org/search/?query=your+terms&searchtype=all&start=0&max_results=20", prompt="List paper titles, authors, arXiv IDs, and abstracts")
 ```
 
 ### Semantic Scholar
 
-Access via direct API (requires API key, or use free tier):
-- 200M+ papers across all fields
-- Excellent for cross-disciplinary searches
-- Provides citation graphs and paper recommendations
-- Use for finding highly influential papers
+**Primary**: `uv run ... paper-search search "<query>" -s semantic -n 15 -y 2020-2025`
 
-### Specialized Biomedical Databases
+Returns citation counts — use these to surface highly-cited seminal work quickly.
 
-These rely on `gget`/`bioservices`, which are skipped in this environment (see Environment Note). Use **WebSearch**/**WebFetch** against each database's own web interface instead:
+**Note**: Without a `SEMANTIC_SCHOLAR_API_KEY`, Semantic Scholar may return 0 results due to rate limiting. Set the key as an environment variable (or in a `.env` in the paper-search repo root) for reliable results — free registration at semanticscholar.org.
+
+### Specialized Databases (WebFetch only)
+
+These are not covered by paper-search. Use WebFetch against their web interfaces:
 - **ChEMBL**: WebFetch against ebi.ac.uk/chembl
 - **UniProt**: WebFetch against uniprot.org
 - **KEGG**: WebFetch against genome.jp/kegg
-- **COSMIC**: WebFetch against cancer.sanger.ac.uk/cosmic
 - **AlphaFold**: WebFetch against alphafold.ebi.ac.uk
 - **PDB**: WebFetch against rcsb.org
 
@@ -398,16 +448,14 @@ These rely on `gget`/`bioservices`, which are skipped in this environment (see E
 Expand search via citation networks:
 
 1. **Forward citations** (papers citing key papers):
-   - Use **WebSearch** to find papers citing a specific work, e.g. `WebSearch(query="papers citing [Author et al. Year] [paper title]", allowed_domains=["scholar.google.com","semanticscholar.org","arxiv.org","pubmed.ncbi.nlm.nih.gov"])`
-   - Use Google Scholar "Cited by"
-   - Use Semantic Scholar or OpenAlex APIs
+   - `uv run ... paper-search search "title of key paper author year" -s semantic,openalex -n 10`
+   - Or WebSearch: `WebSearch(query="papers citing [Author Year Title]", allowed_domains=["semanticscholar.org","arxiv.org"])`
    - Identifies newer research building on seminal work
 
 2. **Backward citations** (references from key papers):
-   - Use **WebFetch** to fetch full text of key papers and extract their reference lists, e.g. `WebFetch(url="https://doi.org/10.xxxx/yyyy", prompt="List the references cited in this paper")`
-   - Extract references from included papers
-   - Identify highly cited foundational work
-   - Find papers cited by multiple included studies
+   - `uv run ... paper-search read <source> <paper_id>` — extracts full text including references
+   - Or WebFetch: `WebFetch(url="https://doi.org/10.xxxx/yyyy", prompt="List the references cited in this paper")`
+   - Find papers cited by multiple included studies — these are likely foundational
 
 ## Citation Style Guide
 
@@ -472,20 +520,14 @@ For any topic, identify foundational work by:
 ## Best Practices
 
 ### Search Strategy
-1. **Start with native WebSearch**: Use the WebSearch tool with `allowed_domains` set to academic sources for initial broad coverage before querying specialized databases
-2. **Use multiple databases** (minimum 3): Ensures comprehensive coverage — WebSearch with different domain filters counts as separate sources
-3. **Target 30-50 unique retained papers before synthesis**: Treat this as a hard gate, not a stretch goal — if the first search round retains fewer than 30 papers after screening, run additional query rounds and/or additional tools (e.g., the `paper-search` skill's CrossRef/OpenAlex/Semantic Scholar access) before moving on. See Phase 3, "Verify Minimum Corpus Size."
-4. **Include preprint servers**: Captures latest unpublished findings
-5. **Document everything**: Search strings, dates, result counts for reproducibility — log all WebSearch queries and results to `sources/search_log.md`
-6. **Test and refine**: Run pilot searches, review results, adjust search terms
-7. **Sort by citations**: When available, sort search results by citation count to surface influential work first
-8. **Use WebFetch**: Fetch full content from promising URLs found during search to verify relevance before full-text screening
-
-### Screening and Selection
-1. **Use multiple databases** (minimum 3): Ensures comprehensive coverage
-2. **Include preprint servers**: Captures latest unpublished findings
-3. **Document everything**: Search strings, dates, result counts for reproducibility
-4. **Test and refine**: Run pilot searches, review results, adjust search terms
+1. **Start with `paper-search`**: Run 2–4 targeted queries against relevant source sets (`-s arxiv,semantic,crossref,openalex` for most topics; add domain-specific sources as needed). Fall back to WebSearch only if paper-search is unavailable or a source isn't covered.
+2. **Use multiple source sets** (minimum 3 databases): Ensures comprehensive coverage — use different `-s` combinations to hit complementary databases
+3. **Target 30-50 unique retained papers before synthesis**: Treat this as a hard gate — if the first round retains fewer than 30 papers, run additional rounds with more queries and/or different source sets before moving on. See Phase 3, "Verify Minimum Corpus Size."
+4. **Include preprint servers**: Add `-s biorxiv,medrxiv,arxiv` to capture latest unpublished findings
+5. **Document everything**: Log every query (search string, sources, `-n`, result count, retained count) to `sources/search_log.md`
+6. **Test and refine**: Run a pilot query first, review results, then adjust terms before running the full query set
+7. **Sort by citations**: paper-search returns citation counts for Semantic Scholar results — prioritize highly-cited papers; use `search_databases.py --rank citations` to sort aggregated results
+8. **Use `paper-search read`**: Fetch full text of promising papers to verify relevance before committing to full-text screening
 
 ### Screening and Selection
 1. **Use clear criteria**: Document inclusion/exclusion criteria before screening
@@ -533,18 +575,25 @@ Complete workflow for a biomedical literature review:
 # 1. Create review document from template
 cp assets/review_template.md crispr_sickle_cell_review.md
 
-# 2. Start with native WebSearch for broad academic search
-# WebSearch(query="CRISPR Cas9 sickle cell disease gene therapy efficacy",
-#   allowed_domains=["arxiv.org","pubmed.ncbi.nlm.nih.gov","semanticscholar.org",
-#                     "biorxiv.org","nature.com","science.org","cell.com","pnas.org","nih.gov"])
-# WebSearch(query="CRISPR sickle cell disease clinical trials treatment")  # general, no domain filter
-# Log each query + returned links/snippets to sources/search_log.md
+# 2. PRIMARY: paper-search across key source sets
+REPO=/Users/shuai/github/paper-search-mcp
 
-# 3. Search additional domains via WebSearch (PubMed, bioRxiv, arXiv, Semantic Scholar)
-# - Use direct API access for arXiv, Semantic Scholar where available
-# - Record results in sources/search_log.md
+uv run --directory $REPO paper-search search \
+  "CRISPR Cas9 sickle cell disease gene therapy" \
+  -n 15 -s arxiv,semantic,crossref,openalex > results_round1a.json
 
-# 4. Aggregate and process results (combine all WebSearch results)
+uv run --directory $REPO paper-search search \
+  "CRISPR base editing hemoglobin beta thalassemia" \
+  -n 15 -s pubmed,pmc,biorxiv,medrxiv,europepmc > results_round1b.json
+
+# Log each query + source set + result count to sources/search_log.md
+
+# 3. FALLBACK: WebSearch if paper-search misses specific sources
+# WebSearch(query="CRISPR sickle cell clinical trials 2023 2024",
+#   allowed_domains=["pubmed.ncbi.nlm.nih.gov","nature.com","cell.com","nejm.org"])
+# Log queries + returned links/snippets to sources/search_log.md
+
+# 4. Aggregate and process results (combine all paper-search JSON + any WebSearch results)
 python scripts/search_databases.py combined_results.json \
   --deduplicate \
   --rank citations \
@@ -588,10 +637,10 @@ python scripts/generate_pdf.py crispr_sickle_cell_review.md \
 
 This skill works seamlessly with other scientific skills:
 
-### Web Search & Extraction (native tools — PRIMARY, in this environment)
-- **WebSearch**: Broad academic and general web search with domain filtering (`allowed_domains`/`blocked_domains`) — use for initial scoping, finding papers, citation chaining, and supplementary searches
-- **WebFetch**: Fetch full content from paper URLs, journal websites, and preprint servers — use for reading abstracts, extracting reference lists, and verifying paper details
-- `parallel-cli`, `gget`, `bioservices`, and `datacommons-client` are skipped per the Environment Note — use WebSearch/WebFetch scoped to the relevant domain instead (e.g., pubmed.ncbi.nlm.nih.gov, biorxiv.org, uniprot.org)
+### Academic Search (in priority order)
+- **`paper-search` skill** (PRIMARY): structured multi-database search via `uv run ... paper-search search` — covers arXiv, PubMed, Semantic Scholar, CrossRef, OpenAlex, bioRxiv, and 15+ more sources. Use for all initial and supplementary literature searches.
+- **WebSearch** (FALLBACK): broad web search with `allowed_domains` filtering — use when paper-search is unavailable or a specific source isn't covered (e.g., paywalled journals, specialized databases)
+- **WebFetch** (SUPPLEMENTARY): fetch full content from specific paper URLs, journal pages, or preprint servers — use for reading abstracts, extracting reference lists, and verifying paper details
 
 ### Analysis Skills
 - **pydeseq2**: RNA-seq differential expression (for methods sections)
@@ -653,9 +702,10 @@ These guides help adapt your review's tone, abstract format, and structure to ma
 
 ## Dependencies
 
-### CLI Tools (Not Required in This Environment)
+### CLI Tools
 
-`parallel-cli` and `gget` are **not used** here — see Environment Note at the top of this document. Web search and extraction are handled by Claude Code's native WebSearch/WebFetch tools, which require no installation.
+- **`paper-search`** (PRIMARY): install via `git clone https://github.com/openags/paper-search-mcp` + `uv sync`, then invoke as `uv run --directory <REPO_PATH> paper-search search ...`. See the `paper-search` skill (`~/.claude/skills/paper-search/SKILL.md`) for full usage.
+- `parallel-cli` and `gget` are **not used** — replaced by `paper-search` and the native WebSearch/WebFetch fallback.
 
 ### Required Python Packages
 ```bash
@@ -691,7 +741,7 @@ needs interactive elevation (sudo password, UAC prompt) you don't have.
 This literature-review skill provides:
 
 1. **Systematic methodology** following academic best practices
-2. **Native-tool powered search** using Claude Code's WebSearch/WebFetch for broad academic literature discovery with scholarly domain filtering (no external CLI installation required)
+2. **`paper-search`-first search** querying 20+ academic databases (arXiv, PubMed, Semantic Scholar, CrossRef, OpenAlex, and more) via a single CLI, with WebSearch/WebFetch as fallback
 3. **Citation verification** ensuring accuracy and credibility
 4. **Professional output** in markdown and PDF formats
 5. **Comprehensive guidance** covering the entire review process

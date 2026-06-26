@@ -96,7 +96,13 @@ def generate_pdf(
         if csl_path:
             cmd.extend(['--csl', csl_path])
         else:
-            print(f"Note: CSL style '{csl_name}' not found; using pandoc's default author-date style.")
+            print(
+                f"WARNING: CSL style '{csl_name}' not found; PDF will use pandoc's default "
+                f"Chicago author-date style instead of '{citation_style}'. "
+                f"Download the correct .csl from https://github.com/citation-style-language/styles "
+                f"and place it next to the markdown file, then re-run.",
+                file=sys.stderr,
+            )
 
     # Add custom template if provided
     if template and os.path.exists(template):

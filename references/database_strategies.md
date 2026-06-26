@@ -2,92 +2,97 @@
 
 This document provides comprehensive guidance for searching multiple literature databases systematically and effectively.
 
-## Available Databases and Skills
+## Available Databases
+
+Access databases via `paper-search` (primary) or WebSearch/WebFetch (fallback). See SKILL.md "Search Engine Priority" for the full priority order and fallback syntax. The `paper-search` CLI is invoked as:
+```bash
+uv run --directory ~/github/paper-search-mcp paper-search search "<query>" -n <N> -s <sources>
+```
 
 ### Biomedical & Life Sciences
 
 #### PubMed / PubMed Central
-- **Access**: Use `gget` skill or WebFetch tool
+- **Access**: `paper-search -s pubmed,pmc`
+- **Fallback**: `WebSearch(query="...", allowed_domains=["pubmed.ncbi.nlm.nih.gov","ncbi.nlm.nih.gov"])`
 - **Coverage**: 35M+ citations in biomedical literature
 - **Best for**: Clinical studies, biomedical research, genetics, molecular biology
 - **Search tips**: Use MeSH terms, Boolean operators (AND, OR, NOT), field tags [Title], [Author]
-- **Example**: `"CRISPR"[Title] AND "gene editing"[Title/Abstract] AND 2020:2024[Publication Date]`
+- **Example query string**: `"CRISPR"[Title] AND "gene editing"[Title/Abstract] AND 2020:2024[Publication Date]`
 
 #### bioRxiv / medRxiv
-- **Access**: Use `gget` skill or direct API
+- **Access**: `paper-search -s biorxiv,medrxiv`
+- **Fallback**: `WebSearch(query="...", allowed_domains=["biorxiv.org","medrxiv.org"])`
 - **Coverage**: Preprints in biology and medicine
 - **Best for**: Latest unpublished research, cutting-edge findings
 - **Note**: Not peer-reviewed; verify findings with caution
-- **Search tips**: Search by category (bioinformatics, genomics, etc.)
 
 ### General Scientific Literature
 
 #### arXiv
-- **Access**: Direct API access
+- **Access**: `paper-search -s arxiv`
+- **Fallback**: `WebFetch(url="https://export.arxiv.org/search/?query=...&searchtype=all&start=0&max_results=20", prompt="List titles, authors, IDs, abstracts")`
 - **Coverage**: Preprints in physics, mathematics, computer science, quantitative biology
 - **Best for**: Computational methods, bioinformatics algorithms, theoretical work
 - **Categories**: q-bio (Quantitative Biology), cs.LG (Machine Learning), stat.ML (Statistics)
 - **Search format**: `cat:q-bio.QM AND title:"single cell"`
 
 #### Semantic Scholar
-- **Access**: Direct API (requires API key)
+- **Access**: `paper-search -s semantic -y 2020-2025`
 - **Coverage**: 200M+ papers across all fields
 - **Best for**: Cross-disciplinary searches, citation graphs, paper recommendations
 - **Features**: Influential citations, paper summaries, related papers
-- **Rate limits**: 100 requests/5 minutes with API key
+- **Rate limits**: Set `SEMANTIC_SCHOLAR_API_KEY` env var for reliable access (free registration at semanticscholar.org); without it, results may be 0 due to rate limiting
 
 #### Google Scholar
-- **Access**: Web scraping (use cautiously) or manual search
+- **Access**: WebSearch/WebFetch only (paper-search does not reliably cover it)
 - **Coverage**: Comprehensive across all fields
 - **Best for**: Finding highly cited papers, conference proceedings, theses
-- **Limitations**: No official API, rate limiting
 - **Export**: Use "Cite" feature for formatted citations
 
-### Specialized Databases
+### Specialized Databases (WebFetch only — not covered by paper-search)
+
+These databases are not queryable via paper-search. Use WebFetch against each database's web interface:
 
 #### ChEMBL / PubChem
-- **Access**: Use `gget` skill or `bioservices` skill
+- **Access**: `WebFetch(url="https://www.ebi.ac.uk/chembl/...", prompt="...")`
 - **Coverage**: Chemical compounds, bioactivity data, drug molecules
 - **Best for**: Drug discovery, chemical biology, medicinal chemistry
-- **ChEMBL**: 2M+ compounds, bioactivity data
-- **PubChem**: 110M+ compounds, assay data
 
 #### UniProt
-- **Access**: Use `gget` skill or `bioservices` skill
+- **Access**: `WebFetch(url="https://rest.uniprot.org/uniprotkb/search?query=...&format=json", prompt="...")`
 - **Coverage**: Protein sequence and functional information
 - **Best for**: Protein research, sequence analysis, functional annotations
-- **Search by**: Protein name, gene name, organism, function
 
 #### KEGG (Kyoto Encyclopedia of Genes and Genomes)
-- **Access**: Use `bioservices` skill
+- **Access**: `WebFetch(url="https://www.genome.jp/kegg/...", prompt="...")`
 - **Coverage**: Pathways, diseases, drugs, genes
 - **Best for**: Pathway analysis, systems biology, metabolic research
 
 #### COSMIC (Catalogue of Somatic Mutations in Cancer)
-- **Access**: Use `gget` skill or direct download
+- **Access**: `WebFetch(url="https://cancer.sanger.ac.uk/cosmic/...", prompt="...")`
 - **Coverage**: Cancer genomics, somatic mutations
 - **Best for**: Cancer research, mutation analysis
 
 #### AlphaFold Database
-- **Access**: Use `gget` skill with `alphafold` command
+- **Access**: `WebFetch(url="https://alphafold.ebi.ac.uk/...", prompt="...")`
 - **Coverage**: 200M+ protein structure predictions
 - **Best for**: Structural biology, protein modeling
 
 #### PDB (Protein Data Bank)
-- **Access**: Use `gget` or direct API
+- **Access**: `WebFetch(url="https://www.rcsb.org/search?...", prompt="...")`
 - **Coverage**: Experimental 3D structures of proteins, nucleic acids
 - **Best for**: Structural biology, drug design, molecular modeling
 
 ### Citation & Reference Management
 
 #### OpenAlex
-- **Access**: Direct API (free, no key required)
+- **Access**: `paper-search -s openalex`
 - **Coverage**: 250M+ works, comprehensive metadata
 - **Best for**: Citation analysis, author disambiguation, institutional research
 - **Features**: Open access, excellent for bibliometrics
 
 #### Dimensions
-- **Access**: Free tier available
+- **Access**: WebFetch against app.dimensions.ai (free tier)
 - **Coverage**: Publications, grants, patents, clinical trials
 - **Best for**: Research impact, funding analysis, translational research
 
@@ -411,30 +416,29 @@ Many databases suggest related articles:
 
 ## Example Multi-Database Search Workflow
 
-```python
-# Example workflow using available skills
+```bash
+REPO=~/github/paper-search-mcp
 
-# 1. Search PubMed via gget
-search_term = "CRISPR AND sickle cell disease"
-# Use gget search pubmed search_term
+# 1. Search general academic databases
+uv run --directory $REPO paper-search search \
+  "CRISPR gene editing sickle cell" \
+  -n 15 -s arxiv,semantic,crossref,openalex > results_round1a.json
 
-# 2. Search bioRxiv
-# Use gget search biorxiv search_term
+# 2. Search biomedical databases
+uv run --directory $REPO paper-search search \
+  "CRISPR sickle cell disease gene therapy" \
+  -n 15 -s pubmed,pmc,biorxiv,medrxiv > results_round1b.json
 
-# 3. Search arXiv for computational papers
-# Search arXiv with: cat:q-bio AND "CRISPR" AND "sickle cell"
+# 3. Merge JSON arrays and deduplicate
+jq -s 'add' results_*.json > combined_results.json
+python search_databases.py combined_results.json \
+  --deduplicate --format markdown --output review_papers.md
 
-# 4. Search Semantic Scholar via API
-# Use semantic scholar API with search query
+# 4. Verify all citations
+python verify_citations.py review_papers.md
 
-# 5. Aggregate and deduplicate results
-# python search_databases.py combined_results.json --deduplicate --format markdown --output review_papers.md
-
-# 6. Verify all citations
-# python verify_citations.py review_papers.md
-
-# 7. Generate final PDF
-# python generate_pdf.py review_papers.md --citation-style nature
+# 5. Generate final PDF
+python generate_pdf.py review_papers.md --citation-style nature
 ```
 
 ---

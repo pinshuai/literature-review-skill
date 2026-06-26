@@ -196,8 +196,19 @@ Each `@key` must resolve to a BibTeX entry in a `.bib` file named to match the r
 }
 ```
 
-- Build the `.bib` from verified metadata: `scripts/search_databases.py --format bibtex`
-  emits BibTeX; verify every DOI first with `scripts/verify_citations.py`.
+- Build the `.bib` from `paper-search` JSON output:
+  ```bash
+  # 1. Capture search results to file (paper-search outputs JSON to stdout)
+  uv run --directory ~/github/paper-search-mcp paper-search search \
+    "your query" -n 15 -s arxiv,semantic,crossref > results.json
+
+  # 2. Convert to BibTeX (verify DOIs first)
+  python scripts/verify_citations.py results.json          # confirm DOIs are valid
+  python scripts/search_databases.py results.json \
+    --format bibtex --output my_review.bib
+  ```
+  If a paper has no DOI, the script generates a key from first-author surname + year.
+  Review and correct these entries manually — missing DOIs are flagged by `verify_citations.py`.
 - Use full author lists in the `author` field (`First, Last and First, Last`). Do **not**
   put the literal string `et al.` in the field — the CSL style adds "et al." truncation
   itself based on the chosen style.
